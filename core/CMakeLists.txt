@@ -1,9 +1,13 @@
-target_sources(hyper_grapher_lib
+project(core)
+
+add_library(core_lib)
+
+target_sources(core_lib
         PUBLIC
-        include/entity.h
-        include/hyper_edge.h
-        include/hyper_graph.h src/hyper_graph.cpp
-        include/node.h
+        model/include/entity.h
+        model/include/hyper_edge.h
+        model/include/hyper_graph.h model/src/hyper_graph.cpp
+        model/include/node.h
         )
 
-target_include_directories(hyper_grapher_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(core_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR})

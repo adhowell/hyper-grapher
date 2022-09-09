@@ -1,8 +1,10 @@
-#include "include/node.h"
-#include "include/entity.h"
+#include "node.h"
+#include "entity.h"
 
 #include <utility>
 #include <vector>
+
+#pragma once
 
 
 namespace core {

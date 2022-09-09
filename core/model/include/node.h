@@ -1,5 +1,8 @@
 #include <cstdint>
 
+#pragma once
+
+
 namespace core {
 /**
  * Nodes are the least significant element in the graph hierarchy.

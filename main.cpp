@@ -1,6 +1,14 @@
-#include "include/hyper_graph.h"
+#include "gui/main_window/include/main_window.h"
+
+#include <QApplication>
 
 
-int main() {
-    return 0;
+int main(int argc, char* argv[]) {
+
+    QApplication app(argc, argv);
+
+    gui::MainWindow window;
+    window.show();
+
+    return app.exec();
 }

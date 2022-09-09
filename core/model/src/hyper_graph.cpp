@@ -1,6 +1,6 @@
 #include <utility>
 
-#include "include/hyper_graph.h"
+#include "model/include/hyper_graph.h"
 
 namespace core
 {
@@ -16,5 +16,15 @@ namespace core
         auto edge = MetaEdge(mUuid++, src, dst);
         mMetaEdges.emplace_back(edge);
         return edge.getUuid();
+    }
+
+    HyperEdge HyperGraph::getHyperEdge(uint32_t uuid)
+    {
+        for (const auto& hyperEdge : mHyperEdges) {
+            if (uuid == hyperEdge.getUuid()) {
+                return hyperEdge;
+            }
+        }
+        throw std::exception();
     }
 }
