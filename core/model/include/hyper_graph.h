@@ -13,6 +13,7 @@ public:
     ~HyperGraph() = default;
 
     uint32_t createHyperEdge(std::vector<Node> nodes);
+    uint32_t createHyperEdge(std::vector<Node> srcNodes, std::vector<Node> dstNodes);
     uint32_t createMetaEdge(const HyperEdge& src, const HyperEdge& dst);
 
     const std::vector<HyperEdge>& getHyperEdges() const { return mHyperEdges; }

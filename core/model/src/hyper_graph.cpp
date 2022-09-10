@@ -1,12 +1,21 @@
+#include "model/include/hyper_graph.h"
+#include "model/include/directional_hyper_edge.h"
+
 #include <utility>
 
-#include "model/include/hyper_graph.h"
 
 namespace core
 {
     uint32_t HyperGraph::createHyperEdge(std::vector<Node> nodes)
     {
         auto edge = HyperEdge(mUuid++, std::move(nodes));
+        mHyperEdges.emplace_back(edge);
+        return edge.getUuid();
+    }
+
+    uint32_t HyperGraph::createHyperEdge(std::vector<Node> srcNodes, std::vector<Node> dstNodes)
+    {
+        auto edge = DirectionalHyperEdge(mUuid++, std::move(srcNodes), std::move(dstNodes));
         mHyperEdges.emplace_back(edge);
         return edge.getUuid();
     }
