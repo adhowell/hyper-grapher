@@ -17,6 +17,8 @@ public:
     void wheelEvent(QWheelEvent* event) override;
 
 private:
+    void itemsApplyDelta(QPointF delta);
+
     QPointF mLastPos;
 };
 }

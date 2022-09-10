@@ -16,8 +16,8 @@ public:
     uint32_t createHyperEdge(std::vector<Node> srcNodes, std::vector<Node> dstNodes);
     uint32_t createMetaEdge(const HyperEdge& src, const HyperEdge& dst);
 
-    const std::vector<HyperEdge>& getHyperEdges() const { return mHyperEdges; }
-    const std::vector<MetaEdge>& getMetaEdges() const { return mMetaEdges; }
+    std::vector<HyperEdge>& getHyperEdges() { return mHyperEdges; }
+    std::vector<MetaEdge>& getMetaEdges() { return mMetaEdges; }
 
     HyperEdge getHyperEdge(uint32_t uuid);
 

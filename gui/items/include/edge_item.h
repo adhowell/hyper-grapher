@@ -13,7 +13,7 @@ public:
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
 private:
-    const NodeItem* mSrc;
-    const NodeItem* mDst;
+    NodeItem* mSrc;
+    NodeItem* mDst;
 };
 }

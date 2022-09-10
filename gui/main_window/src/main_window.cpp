@@ -1,7 +1,6 @@
 #include "main_window/include/main_window.h"
 #include "model/include/hyper_graph.h"
 
-
 #include <QHBoxLayout>
 
 
@@ -23,6 +22,6 @@ MainWindow::MainWindow(QWidget* parent) {
     setLayout(layout);
 
     setWindowTitle("Hyper-Grapher");
-    setMinimumSize(500, 500);
+    setMinimumSize(1200, 720);
 }
 }

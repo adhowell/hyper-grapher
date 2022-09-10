@@ -8,21 +8,23 @@ namespace gui
 {
     QRectF EdgeItem::boundingRect() const
     {
-        QPointF p1 = mSrc->pos();
-        QPointF p2 = mDst->pos();
-        qreal x1 = p1.x();
-        qreal y1 = p1.y();
-        qreal x2 = p2.x();
-        qreal y2 = p2.y();
-        return {0, 0, x2-x1, y2-y1};
+        return {-1000, -1000, 2000, 2000};
     }
 
     void EdgeItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
     {
-        QPointF p1 = mSrc->pos();
-        QPointF p2 = mDst->pos();
         painter->setRenderHint(QPainter::Antialiasing);
         painter->setPen(QColor(0, 0, 0));
-        painter->drawLine(QLineF(0, 0, p2.x()-p1.x(), p2.y()-p1.y()));
+
+        if (mSrc->getNodePositions().empty() || mDst->getNodePositions().empty()) {
+            return;
+        }
+        QPointF startPos = mSrc->getNodePositions()[0];
+        setPos(startPos);
+        for (auto src : mSrc->getNodePositions()) {
+            for (auto dst : mDst->getNodePositions()) {
+                painter->drawLine(QLineF(src.x()-startPos.x(), src.y()-startPos.y(), dst.x()-startPos.x(), dst.y()-startPos.y()));
+            }
+        }
     }
 }

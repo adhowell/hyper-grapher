@@ -17,19 +17,25 @@ HyperGraphView::HyperGraphView(QGraphicsScene* scene, QWidget* parent) : QGraphi
 
 void HyperGraphView::mousePressEvent(QMouseEvent* event)
 {
-    mLastPos = mapToScene(event->pos());
+    QGraphicsView::mousePressEvent(event);
     event->accept();
+    if (!(event->button() & Qt::RightButton)) {
+        return;
+    }
+    mLastPos = mapToScene(event->pos());
 }
 
 void HyperGraphView::mouseMoveEvent(QMouseEvent* event)
 {
-    auto pos = mapToScene(event->pos());
-    for (auto item : items()) {
-        item->setPos(item->pos().x() + pos.x() - mLastPos.x(), item->pos().y() + pos.y() - mLastPos.y());
+    QGraphicsView::mouseMoveEvent(event); // Otherwise items don't handle mouse-move events
+    event->accept();
+    if (!(event->buttons() & Qt::RightButton)) {
+        return;
     }
+    auto pos = mapToScene(event->pos());
+    itemsApplyDelta(pos - mLastPos);
     mLastPos = pos;
     update();
-    event->accept();
 }
 
 void HyperGraphView::wheelEvent(QWheelEvent* event)
@@ -37,5 +43,12 @@ void HyperGraphView::wheelEvent(QWheelEvent* event)
     qreal delta = event->angleDelta().y() > 0 ? 1.25 : 0.8;
     scale(delta, delta);
     event->accept();
+}
+
+void HyperGraphView::itemsApplyDelta(QPointF delta)
+{
+    for (auto item : items()) {
+        item->setPos(item->pos().x() + delta.x(), item->pos().y() + delta.y());
+    }
 }
 }
