@@ -6,6 +6,8 @@ target_sources(gui_lib
         hyper_graph_view/include/hyper_graph_view.h hyper_graph_view/src/hyper_graph_view.cpp
         items/include/edge_item.h items/src/edge_item.cpp
         items/include/node_item.h items/src/node_item.cpp
+        items/include/procedural_node.h
+        items/include/procedural_view.h items/src/procedural_view.cpp
         main_window/include/main_window.h main_window/src/main_window.cpp
         )
 

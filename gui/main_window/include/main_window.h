@@ -11,6 +11,8 @@ Q_OBJECT
 public:
     MainWindow(QWidget* parent = nullptr);
 
+    void resizeEvent(QResizeEvent *event) override;
+
 private:
     gui::HyperGraphScene* mScene;
 };

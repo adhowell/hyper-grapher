@@ -27,8 +27,8 @@ namespace gui
         painter->setPen(mPen);
         painter->setBrush(mBrush);
         painter->drawEllipse(QRectF(-mRadius, -mRadius, mRadius*2.0, mRadius*2.0));
-        if (mOutEdge) {
-            mOutEdge->update();
+        for (auto e : mEdges) {
+            e->update();
         }
     }
 
@@ -39,9 +39,13 @@ namespace gui
 
     void NodeItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
     {
+        if (mChildren.empty()) {
+            return;
+        }
         for (auto child : mChildren) {
             child->setVisible(true);
         }
+        hide();
         update();
         event->accept();
     }
@@ -70,19 +74,22 @@ namespace gui
 
     void NodeItem::addEdge(QGraphicsItem* edge)
     {
-        mOutEdge = edge;
+        mEdges.emplace_back(edge);
     }
 
     std::vector<QPointF> NodeItem::getNodePositions()
     {
-        if (!isVisible()) {
-            return {};
-        }
+        //if (!isVisible()) {
+        //    return {};
+        //}
         if (mChildren.empty()) {
             return {pos()};
         }
         std::vector<QPointF> positions;
         for (auto n : mChildren) {
+            if (!n->isVisible()) {
+                continue;
+            }
             for (auto p : n->getNodePositions()) {
                 positions.emplace_back(p);
             }

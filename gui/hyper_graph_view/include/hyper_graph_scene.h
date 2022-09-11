@@ -15,9 +15,13 @@ public:
     explicit HyperGraphScene(core::HyperGraph& graph);
     ~HyperGraphScene() override = default;
 
-    [[nodiscard]] gui::HyperGraphView* getView() const { return mView; }
+    [[nodiscard]] HyperGraphView* getView() const { return mView; }
+
+    void updateRect() { mView->updateRect(); }
 
 private:
-    gui::HyperGraphView* mView;
+    HyperGraphView* mView;
+    ProceduralView* mProceduralView;
+    std::vector<ProceduralNode> mNodes;
 };
 }
