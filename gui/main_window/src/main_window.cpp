@@ -6,14 +6,13 @@
 
 namespace gui
 {
-MainWindow::MainWindow(QWidget* parent) {
-    //setStyleSheet("color: #00ff00; background-color: black;");
-
+MainWindow::MainWindow(QWidget* parent)
+{
     core::HyperGraph graph;
 
     auto last = graph.createHyperEdge({core::Node(0)});
     uint32_t curr = 0;
-    for (uint32_t i = 1; i < 20000; i++) {
+    for (uint32_t i = 1; i < 50000; i++) {
         curr = graph.createHyperEdge({core::Node(i)});
         graph.createMetaEdge(graph.getHyperEdge(last), graph.getHyperEdge(curr));
         last = curr;

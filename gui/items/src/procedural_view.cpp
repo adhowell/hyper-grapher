@@ -6,7 +6,7 @@
 
 namespace gui
 {
-ProceduralView::ProceduralView(std::vector<ProceduralNode> &nodes) : QGraphicsItem(), mNodes(nodes)
+ProceduralView::ProceduralView(std::vector<ProceduralNode> &nodes, std::vector<ProceduralEdge> &edges) : QGraphicsItem(), mNodes(nodes), mEdges(edges)
 {
     bool first = true;
     for (auto n : nodes) {
@@ -29,31 +29,29 @@ void ProceduralView::slowUpdate()
     mIt = std::partition(mNodes.begin(), mNodes.end(),
                          [this](auto n)
                          {
-        bool b = (mX2 > n.x && n.x > mX1 && mY2 > n.y && n.y > mY1);
-                             return b;
-                         });
-    update();
-}
-
-void ProceduralView::lessSlowUpdate()
-{
-    mIt = std::partition(mNodes.begin(), mIt,
-                         [this](auto n)
-                         {
-                             bool b = (mX2 > n.x && n.x > mX1 && mY2 > n.y && n.y > mY1);
-                             return b;
+                             return n.visible && mX2 > n.x && n.x > mX1 && mY2 > n.y && n.y > mY1;
                          });
     update();
 }
 
 void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
+    qreal wF = mRect.width()/(mX2-mX1);
+    qreal hF = mRect.height()/(mY2-mY1);
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setPen(QColor(0, 0, 0));
     std::for_each(mNodes.begin(), mIt,
-                  [painter, this](auto n)
+                  [painter, wF, hF, this](auto n)
                   {
-                    painter->drawEllipse(mRect.width()*(n.x-mX1)/(mX2-mX1)-5, mRect.height()*(n.y-mY1)/(mY2-mY1)-5, 10, 10);
+                    painter->drawLine(wF*(n.x-mX1), hF*(n.y-mY1), wF*(n.x-mX1), hF*(n.y-mY1));
+                  });
+    std::for_each(mEdges.begin(), mEdges.end(),
+                  [painter, hF, wF, this](auto e)
+                  {
+                      if ((mX2 > e.x1 && e.x1 > mX1) && (mX2 > e.x2 && e.x2 > mX1)
+                       && (mY2 > e.y1 && e.y1 > mY1) && (mY2 > e.y2 && e.y2 > mY1)) {
+                          painter->drawLine(wF*(e.x1-mX1), hF*(e.y1-mY1), wF*(e.x2-mX1), hF*(e.y2-mY1));
+                      }
                   });
 }
 
@@ -67,11 +65,8 @@ void ProceduralView::updateZoom(QPointF newCentre, qreal zoomFactor)
     mX2 = x + currWidth * 0.5 / zoomFactor;
     mY1 = y - currHeight * 0.5 / zoomFactor;
     mY2 = y + currHeight * 0.5 / zoomFactor;
-    if (zoomFactor > 1) {
-        lessSlowUpdate();
-    } else {
-        slowUpdate();
-    }
+    slowUpdate();
+
 }
 
 void ProceduralView::applyPositionDelta(QPointF delta)

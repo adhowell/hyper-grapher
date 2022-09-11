@@ -1,4 +1,5 @@
 #include <QtMath>
+#include <QtDebug>
 
 
 namespace gui

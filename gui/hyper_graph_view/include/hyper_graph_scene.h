@@ -23,5 +23,6 @@ private:
     HyperGraphView* mView;
     ProceduralView* mProceduralView;
     std::vector<ProceduralNode> mNodes;
+    std::vector<ProceduralEdge> mEdges;
 };
 }

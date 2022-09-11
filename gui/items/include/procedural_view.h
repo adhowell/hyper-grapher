@@ -1,4 +1,4 @@
-#include "items/include/procedural_node.h"
+#include "items/include/procedural_edge.h"
 
 #include <QGraphicsItem>
 
@@ -7,19 +7,13 @@ namespace gui
 {
 class ProceduralView : public QGraphicsItem {
 public:
-    explicit ProceduralView(std::vector<ProceduralNode> &nodes);
+    explicit ProceduralView(std::vector<ProceduralNode> &nodes, std::vector<ProceduralEdge>& edges);
     ~ProceduralView() override = default;
 
     /**
      * Find which elements are visible given the current bounding box.
      */
     void slowUpdate();
-
-    /**
-     * Same as slowUpdate but assumes all required elements are a subset of
-     * the currently visible elements.
-     */
-    void lessSlowUpdate();
 
     /**
      * Re-sets the view to the given centre coordinate and applies the
@@ -38,6 +32,7 @@ public:
 
 private:
     std::vector<ProceduralNode> &mNodes;
+    std::vector<ProceduralEdge> &mEdges;
     __gnu_cxx::__normal_iterator<ProceduralNode*, std::vector<ProceduralNode>> mIt;
     qreal mX1, mX2, mY1, mY2;
     QRectF mRect;
