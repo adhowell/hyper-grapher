@@ -16,6 +16,12 @@ public:
     void slowUpdate();
 
     /**
+     * Same as slowUpdate but assumes all required elements are a subset of
+     * the currently visible elements.
+     */
+    void lessSlowUpdate();
+
+    /**
      * Re-sets the view to the given centre coordinate and applies the
      * given scaling factor.
      * @param newCentre - New coordinates to centre about.

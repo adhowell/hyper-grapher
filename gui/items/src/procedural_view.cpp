@@ -35,6 +35,17 @@ void ProceduralView::slowUpdate()
     update();
 }
 
+void ProceduralView::lessSlowUpdate()
+{
+    mIt = std::partition(mNodes.begin(), mIt,
+                         [this](auto n)
+                         {
+                             bool b = (mX2 > n.x && n.x > mX1 && mY2 > n.y && n.y > mY1);
+                             return b;
+                         });
+    update();
+}
+
 void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
     painter->setRenderHint(QPainter::Antialiasing);
@@ -56,7 +67,11 @@ void ProceduralView::updateZoom(QPointF newCentre, qreal zoomFactor)
     mX2 = x + currWidth * 0.5 / zoomFactor;
     mY1 = y - currHeight * 0.5 / zoomFactor;
     mY2 = y + currHeight * 0.5 / zoomFactor;
-    slowUpdate();
+    if (zoomFactor > 1) {
+        lessSlowUpdate();
+    } else {
+        slowUpdate();
+    }
 }
 
 void ProceduralView::applyPositionDelta(QPointF delta)
