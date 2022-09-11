@@ -27,7 +27,7 @@ namespace gui
     private:
         NodeItem* mParent = nullptr;
         std::vector<NodeItem*> mChildren;
-        QGraphicsItem* mOutEdge = nullptr;
+        std::vector<QGraphicsItem*> mEdges;
 
         qreal mRadius = 5;
         QPen mPen;

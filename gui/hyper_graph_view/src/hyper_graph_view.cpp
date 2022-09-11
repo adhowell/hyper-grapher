@@ -8,11 +8,12 @@
 
 namespace gui
 {
-HyperGraphView::HyperGraphView(QGraphicsScene* scene, QWidget* parent) : QGraphicsView(parent)
+HyperGraphView::HyperGraphView(QGraphicsScene* scene, ProceduralView* viewItem, QWidget* parent) : QGraphicsView(parent), mViewItem(viewItem)
 {
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setScene(scene);
+    setAlignment(Qt::AlignTop | Qt::AlignLeft);
 }
 
 void HyperGraphView::mousePressEvent(QMouseEvent* event)
@@ -33,22 +34,14 @@ void HyperGraphView::mouseMoveEvent(QMouseEvent* event)
         return;
     }
     auto pos = mapToScene(event->pos());
-    itemsApplyDelta(pos - mLastPos);
+    mViewItem->applyPositionDelta(pos - mLastPos);
     mLastPos = pos;
     update();
 }
 
 void HyperGraphView::wheelEvent(QWheelEvent* event)
 {
-    qreal delta = event->angleDelta().y() > 0 ? 1.25 : 0.8;
-    scale(delta, delta);
+    mViewItem->updateZoom(mapToScene(event->position().x(), event->position().y()), event->angleDelta().y() > 0 ? 1.25 : 0.8);
     event->accept();
-}
-
-void HyperGraphView::itemsApplyDelta(QPointF delta)
-{
-    for (auto item : items()) {
-        item->setPos(item->pos().x() + delta.x(), item->pos().y() + delta.y());
-    }
 }
 }

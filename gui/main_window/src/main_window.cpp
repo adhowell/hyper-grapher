@@ -10,11 +10,14 @@ MainWindow::MainWindow(QWidget* parent) {
     //setStyleSheet("color: #00ff00; background-color: black;");
 
     core::HyperGraph graph;
-    auto e1 = graph.createHyperEdge({core::Node(0)}, {core::Node(1), core::Node(2)});
-    auto e2 = graph.createHyperEdge({core::Node(3), core::Node(4)});
-    auto e3 = graph.createHyperEdge({core::Node(5)});
-    graph.createMetaEdge(graph.getHyperEdge(e1), graph.getHyperEdge(e2));
-    graph.createMetaEdge(graph.getHyperEdge(e2), graph.getHyperEdge(e3));
+
+    auto last = graph.createHyperEdge({core::Node(0)});
+    uint32_t curr = 0;
+    for (uint32_t i = 1; i < 20000; i++) {
+        curr = graph.createHyperEdge({core::Node(i)});
+        graph.createMetaEdge(graph.getHyperEdge(last), graph.getHyperEdge(curr));
+        last = curr;
+    }
     mScene = new HyperGraphScene(graph);
 
     auto layout = new QHBoxLayout;
@@ -22,6 +25,14 @@ MainWindow::MainWindow(QWidget* parent) {
     setLayout(layout);
 
     setWindowTitle("Hyper-Grapher");
-    setMinimumSize(1200, 720);
+    setMinimumSize(600, 400);
+
+    mScene->updateRect();
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    mScene->updateRect();
 }
 }
