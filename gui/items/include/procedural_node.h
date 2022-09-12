@@ -5,8 +5,9 @@
 namespace gui
 {
 struct ProceduralNode {
-    qreal x;
-    qreal y;
-    bool visible;
+    std::atomic<double> x;
+    std::atomic<double> y;
+    std::atomic<bool> visible = false;
+    std::atomic<bool> focus = false;
 };
 }

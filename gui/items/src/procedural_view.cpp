@@ -6,14 +6,14 @@
 
 namespace gui
 {
-ProceduralView::ProceduralView(std::vector<ProceduralNode> &nodes, std::vector<ProceduralEdge> &edges) : QGraphicsItem(), mNodes(nodes), mEdges(edges)
+ProceduralView::ProceduralView(std::vector<ProceduralNode*> &nodes, std::vector<ProceduralEdge*> &edges) : QGraphicsItem(), mNodes(nodes), mEdges(edges)
 {
     bool first = true;
     for (auto n : nodes) {
-        if (first || n.x < mX1) mX1 = n.x;
-        if (first || n.x > mX2) mX2 = n.x;
-        if (first || n.y < mY1) mY1 = n.y;
-        if (first || n.y > mY2) mY2 = n.y;
+        if (first || n->x < mX1) mX1 = n->x;
+        if (first || n->x > mX2) mX2 = n->x;
+        if (first || n->y < mY1) mY1 = n->y;
+        if (first || n->y > mY2) mY2 = n->y;
         first = false;
     }
     // Margins
@@ -29,7 +29,7 @@ void ProceduralView::slowUpdate()
     mIt = std::partition(mNodes.begin(), mNodes.end(),
                          [this](auto n)
                          {
-                             return n.visible && mX2 > n.x && n.x > mX1 && mY2 > n.y && n.y > mY1;
+                             return n->visible && mX2 > n->x && n->x > mX1 && mY2 > n->y && n->y > mY1;
                          });
     update();
 }
@@ -39,27 +39,38 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
     qreal wF = mRect.width()/(mX2-mX1);
     qreal hF = mRect.height()/(mY2-mY1);
     painter->setRenderHint(QPainter::Antialiasing);
-    painter->setPen(QColor(0, 0, 0));
+    auto defaultPen = QPen();
+    auto focusPen = QPen();
+    focusPen.setWidthF(3);
     if (mDrawDetails) {
         std::for_each(mNodes.begin(), mIt,
-                      [painter, wF, hF, this](auto n) {
-                          painter->drawLine(wF*(n.x-mX1), hF*(n.y-mY1), wF*(n.x-mX1), hF*(n.y-mY1));
+                      [painter, wF, hF, focusPen, defaultPen, this](auto n) {
+                          painter->setPen(n->focus ? focusPen : defaultPen);
+                          painter->drawEllipse(wF*(n->x-mX1) - 5, hF * (n->y - mY1) - 5, 10, 10);
                       });
     } else {
         std::for_each(mNodes.begin(), mIt,
-                      [painter, wF, hF, this](auto n) {
-                          painter->drawEllipse(wF * (n.x - mX1) - 5, hF * (n.y - mY1) - 5, 10, 10);
+                      [painter, wF, hF, focusPen, defaultPen, this](auto n) {
+                          painter->setPen(n->focus ? focusPen : defaultPen);
+                          painter->drawLine(wF*(n->x-mX1), hF*(n->y-mY1), wF*(n->x-mX1), hF*(n->y-mY1));
                       });
     }
+    painter->setPen(QColor(0, 0, 0));
     if (mDrawEdges) {
         std::for_each(mEdges.begin(), mEdges.end(),
                       [painter, hF, wF, this](auto e) {
-                          if ((mX2 > e.x1 && e.x1 > mX1) && (mX2 > e.x2 && e.x2 > mX1)
-                              && (mY2 > e.y1 && e.y1 > mY1) && (mY2 > e.y2 && e.y2 > mY1)) {
-                              painter->drawLine(wF * (e.x1 - mX1), hF * (e.y1 - mY1), wF * (e.x2 - mX1),
-                                                hF * (e.y2 - mY1));
+                          if ((mX2 > e->src->x && e->src->x > mX1) && (mX2 > e->dst->x && e->dst->x > mX1)
+                              && (mY2 > e->src->y && e->src->y > mY1) && (mY2 > e->dst->y && e->dst->y > mY1)) {
+                              painter->drawLine(wF * (e->src->x - mX1), hF * (e->src->y - mY1), wF * (e->dst->x - mX1),
+                                                hF * (e->dst->y - mY1));
                           }
                       });
+    }
+    if (mDrawBox) {
+        painter->drawLine(QLineF(wF*(mBoxStartPoint.x()-mX1), hF*(mBoxStartPoint.y()-mY1), wF*(mBoxEndPoint.x()-mX1), hF*(mBoxStartPoint.y()-mY1)));
+        painter->drawLine(QLineF(wF*(mBoxEndPoint.x()-mX1), hF*(mBoxStartPoint.y()-mY1), wF*(mBoxEndPoint.x()-mX1), hF*(mBoxEndPoint.y()-mY1)));
+        painter->drawLine(QLineF(wF*(mBoxEndPoint.x()-mX1), hF*(mBoxEndPoint.y()-mY1), wF*(mBoxStartPoint.x()-mX1), hF*(mBoxEndPoint.y()-mY1)));
+        painter->drawLine(QLineF(wF*(mBoxStartPoint.x()-mX1), hF*(mBoxEndPoint.y()-mY1), wF*(mBoxStartPoint.x()-mX1), hF*(mBoxStartPoint.y()-mY1)));
     }
 }
 
@@ -74,7 +85,6 @@ void ProceduralView::updateZoom(QPointF newCentre, qreal zoomFactor)
     mY1 = y - currHeight * 0.5 / zoomFactor;
     mY2 = y + currHeight * 0.5 / zoomFactor;
     slowUpdate();
-
 }
 
 void ProceduralView::applyPositionDelta(QPointF delta)
@@ -87,6 +97,28 @@ void ProceduralView::applyPositionDelta(QPointF delta)
     mY2 -= deltaY;
     slowUpdate();
     update();
+}
+
+QPointF ProceduralView::getFramePos(QPointF scenePos)
+{
+    return {(mX2-mX1)*scenePos.x()/mRect.width() + mX1, (mY2-mY1)*scenePos.y()/mRect.height() + mY1};
+}
+
+void ProceduralView::updateSelectionBoxEnd(QPointF endPoint)
+{
+    mBoxEndPoint = getFramePos(endPoint);
+    qreal x1 = qMin(mBoxStartPoint.x(), mBoxEndPoint.x());
+    qreal x2 = qMax(mBoxStartPoint.x(), mBoxEndPoint.x());
+    qreal y1 = qMin(mBoxStartPoint.y(), mBoxEndPoint.y());
+    qreal y2 = qMax(mBoxStartPoint.y(), mBoxEndPoint.y());
+    auto it = std::partition(mNodes.begin(), mIt,
+                             [x1, x2, y1, y2](auto n)
+                             {
+                                 return n->visible && x2 > n->x && n->x > x1 && y2 > n->y && n->y > y1;
+                             });
+    std::for_each(mNodes.begin(), it, [](auto n){ n->focus = true; });
+    std::for_each(it, mNodes.end(), [](auto n){ n->focus = false; });
+    slowUpdate();
 }
 
 void ProceduralView::toggleDrawDetails()

@@ -10,9 +10,9 @@ HyperGraphScene::HyperGraphScene(core::HyperGraph& graph) : QGraphicsScene() {
     int x = 0;
     int y = 0;
     int maxX = qSqrt(qreal(graph.getHyperEdges().size())) * 5;
-    std::unordered_map<uint32_t, ProceduralNode> nodeMap;
+    std::unordered_map<uint32_t, ProceduralNode*> nodeMap;
     for (auto& hyperEdge: graph.getHyperEdges()) {
-        auto node = ProceduralNode{qreal(x), qreal(y), true};
+        auto node = new ProceduralNode{qreal(x), qreal(y), true};
         nodeMap[hyperEdge.getUuid()] = node;
         mNodes.emplace_back(node);
         x += 5;
@@ -22,9 +22,7 @@ HyperGraphScene::HyperGraphScene(core::HyperGraph& graph) : QGraphicsScene() {
         }
     }
     for (auto& metaEdge : graph.getMetaEdges()) {
-        //TODO: wut
-        //auto edge = ProceduralEdge{nodeMap.at(metaEdge.getSrcUuid()), nodeMap.at(metaEdge.getDstUuid())};
-        auto edge = ProceduralEdge{nodeMap.at(metaEdge.getSrcUuid()).x, nodeMap.at(metaEdge.getSrcUuid()).y, nodeMap.at(metaEdge.getDstUuid()).x, nodeMap.at(metaEdge.getDstUuid()).y};
+        auto edge = new ProceduralEdge{nodeMap.at(metaEdge.getSrcUuid()), nodeMap.at(metaEdge.getDstUuid())};
         mEdges.emplace_back(edge);
     }
     mProceduralView = new ProceduralView(mNodes, mEdges);

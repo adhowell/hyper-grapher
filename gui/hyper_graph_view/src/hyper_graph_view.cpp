@@ -29,23 +29,35 @@ void HyperGraphView::mousePressEvent(QMouseEvent* event)
 {
     QGraphicsView::mousePressEvent(event);
     event->accept();
-    if (!(event->button() & Qt::RightButton)) {
-        return;
+    if (event->button() & Qt::RightButton) {
+        mLastPos = mapToScene(event->pos());
+    } else if (event->button() & Qt::LeftButton) {
+        mViewItem->deselectAll();
+        mViewItem->updateSelectionBoxStart(mapToScene(event->pos()));
     }
-    mLastPos = mapToScene(event->pos());
 }
 
 void HyperGraphView::mouseMoveEvent(QMouseEvent* event)
 {
     QGraphicsView::mouseMoveEvent(event); // Otherwise items don't handle mouse-move events
     event->accept();
-    if (!(event->buttons() & Qt::RightButton)) {
-        return;
+    if (event->buttons() & Qt::RightButton) {
+        auto pos = mapToScene(event->pos());
+        mViewItem->applyPositionDelta(pos - mLastPos);
+        mLastPos = pos;
+        update();
+    } else if (event->buttons() & Qt::LeftButton) {
+        mViewItem->drawBox(true);
+        mViewItem->updateSelectionBoxEnd(mapToScene(event->pos()));
     }
-    auto pos = mapToScene(event->pos());
-    mViewItem->applyPositionDelta(pos - mLastPos);
-    mLastPos = pos;
-    update();
+}
+
+void HyperGraphView::mouseReleaseEvent(QMouseEvent *event)
+{
+    QGraphicsView::mouseReleaseEvent(event);
+    event->accept();
+    mViewItem->drawBox(false);
+    mViewItem->update();
 }
 
 void HyperGraphView::wheelEvent(QWheelEvent* event)

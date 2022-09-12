@@ -7,9 +7,7 @@ namespace gui
 {
 struct ProceduralEdge
 {
-    qreal x1;
-    qreal y1;
-    qreal x2;
-    qreal y2;
+    ProceduralNode* src;
+    ProceduralNode* dst;
 };
 }
