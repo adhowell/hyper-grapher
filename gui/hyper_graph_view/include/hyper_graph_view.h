@@ -13,6 +13,8 @@ public:
     explicit HyperGraphView(QGraphicsScene* scene, ProceduralView* viewItem, QWidget* parent = nullptr);
     ~HyperGraphView() override = default;
 
+    void keyPressEvent(QKeyEvent *event) override;
+
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;

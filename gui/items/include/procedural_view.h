@@ -25,12 +25,18 @@ public:
 
     void applyPositionDelta(QPointF delta);
 
+    void toggleDrawDetails();
+    void toggleDrawEdges();
+
     void setRect(QRectF rect);
 
     QRectF boundingRect() const override { return mRect; };
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
 private:
+    bool mDrawDetails = true;
+    bool mDrawEdges = true;
+
     std::vector<ProceduralNode> &mNodes;
     std::vector<ProceduralEdge> &mEdges;
     __gnu_cxx::__normal_iterator<ProceduralNode*, std::vector<ProceduralNode>> mIt;

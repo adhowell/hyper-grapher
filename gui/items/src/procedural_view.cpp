@@ -40,19 +40,27 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
     qreal hF = mRect.height()/(mY2-mY1);
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setPen(QColor(0, 0, 0));
-    std::for_each(mNodes.begin(), mIt,
-                  [painter, wF, hF, this](auto n)
-                  {
-                    painter->drawLine(wF*(n.x-mX1), hF*(n.y-mY1), wF*(n.x-mX1), hF*(n.y-mY1));
-                  });
-    std::for_each(mEdges.begin(), mEdges.end(),
-                  [painter, hF, wF, this](auto e)
-                  {
-                      if ((mX2 > e.x1 && e.x1 > mX1) && (mX2 > e.x2 && e.x2 > mX1)
-                       && (mY2 > e.y1 && e.y1 > mY1) && (mY2 > e.y2 && e.y2 > mY1)) {
-                          painter->drawLine(wF*(e.x1-mX1), hF*(e.y1-mY1), wF*(e.x2-mX1), hF*(e.y2-mY1));
-                      }
-                  });
+    if (mDrawDetails) {
+        std::for_each(mNodes.begin(), mIt,
+                      [painter, wF, hF, this](auto n) {
+                          painter->drawLine(wF*(n.x-mX1), hF*(n.y-mY1), wF*(n.x-mX1), hF*(n.y-mY1));
+                      });
+    } else {
+        std::for_each(mNodes.begin(), mIt,
+                      [painter, wF, hF, this](auto n) {
+                          painter->drawEllipse(wF * (n.x - mX1) - 5, hF * (n.y - mY1) - 5, 10, 10);
+                      });
+    }
+    if (mDrawEdges) {
+        std::for_each(mEdges.begin(), mEdges.end(),
+                      [painter, hF, wF, this](auto e) {
+                          if ((mX2 > e.x1 && e.x1 > mX1) && (mX2 > e.x2 && e.x2 > mX1)
+                              && (mY2 > e.y1 && e.y1 > mY1) && (mY2 > e.y2 && e.y2 > mY1)) {
+                              painter->drawLine(wF * (e.x1 - mX1), hF * (e.y1 - mY1), wF * (e.x2 - mX1),
+                                                hF * (e.y2 - mY1));
+                          }
+                      });
+    }
 }
 
 void ProceduralView::updateZoom(QPointF newCentre, qreal zoomFactor)
@@ -78,6 +86,18 @@ void ProceduralView::applyPositionDelta(QPointF delta)
     mY1 -= deltaY;
     mY2 -= deltaY;
     slowUpdate();
+    update();
+}
+
+void ProceduralView::toggleDrawDetails()
+{
+    mDrawDetails = !mDrawDetails;
+    update();
+}
+
+void ProceduralView::toggleDrawEdges()
+{
+    mDrawEdges = !mDrawEdges;
     update();
 }
 

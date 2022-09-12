@@ -16,6 +16,15 @@ HyperGraphView::HyperGraphView(QGraphicsScene* scene, ProceduralView* viewItem, 
     setAlignment(Qt::AlignTop | Qt::AlignLeft);
 }
 
+void HyperGraphView::keyPressEvent(QKeyEvent *event)
+{
+    QGraphicsView::keyPressEvent(event);
+    switch (event->key()) {
+        case Qt::Key_D: mViewItem->toggleDrawDetails(); break;
+        case Qt::Key_E: mViewItem->toggleDrawEdges(); break;
+    }
+}
+
 void HyperGraphView::mousePressEvent(QMouseEvent* event)
 {
     QGraphicsView::mousePressEvent(event);
