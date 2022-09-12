@@ -76,14 +76,30 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
 
 void ProceduralView::updateZoom(QPointF newCentre, qreal zoomFactor)
 {
-    qreal x = (mX2-mX1)*newCentre.x()/mRect.width() + mX1;
-    qreal y = (mY2-mY1)*newCentre.y()/mRect.height() + mY1;
     qreal currWidth = mX2 - mX1;
     qreal currHeight = mY2 - mY1;
-    mX1 = x - currWidth * 0.5 / zoomFactor;
-    mX2 = x + currWidth * 0.5 / zoomFactor;
-    mY1 = y - currHeight * 0.5 / zoomFactor;
-    mY2 = y + currHeight * 0.5 / zoomFactor;
+    qreal zoomWidth = currWidth * 0.5 / zoomFactor;
+    qreal zoomHeight = currHeight * 0.5 / zoomFactor;
+
+    qreal x, y;
+    if (zoomFactor < 1) {
+        x = currWidth*0.5 + mX1;
+        y = currHeight*0.5 + mY1;
+    } else {
+        x = currWidth*newCentre.x()/mRect.width() + mX1;
+        y = currHeight*newCentre.y()/mRect.height() + mY1;
+
+        // Limit offset zooming to what it currently visible
+        if (mX1 > x - zoomWidth) x += mX1 - x + zoomWidth;
+        if (mX2 < x + zoomWidth) x -= x + zoomWidth - mX2;
+        if (mY1 > y - zoomHeight) y += mY1 - y + zoomHeight;
+        if (mY2 < y + zoomHeight) y -= y + zoomHeight - mY2;
+    }
+
+    mX1 = x - zoomWidth;
+    mX2 = x + zoomWidth;
+    mY1 = y - zoomHeight;
+    mY2 = y + zoomHeight;
     slowUpdate();
 }
 

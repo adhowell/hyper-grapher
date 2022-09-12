@@ -19,7 +19,7 @@ public:
      * Re-sets the view to the given centre coordinate and applies the
      * given scaling factor.
      * @param newCentre - New coordinates to centre about.
-     * @param zoomFactor - Zoom factor. Positive is zoom-in.
+     * @param zoomFactor - Zoom factor. >1 is zoom-in.
      */
     void updateZoom(QPointF newCentre, qreal zoomFactor);
 
