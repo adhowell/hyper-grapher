@@ -23,12 +23,20 @@ public:
      */
     void updateZoom(QPointF newCentre, qreal zoomFactor);
 
+    /**
+     * Applies the given delta to the frame limits
+     */
     void applyPositionDelta(QPointF delta);
+
+    /**
+     * Applies the given delta to every currently focused node
+     */
+    void applyFocusPositionDelta(QPointF delta);
 
     /**
      * Returns the scene coordinates as frame coordinates, i.e. the mX1, mX2, mY1, mY2 frame
      */
-    QPointF getFramePos(QPointF);
+    QPointF getFramePos(QPointF scenePos);
 
     void drawBox(bool boxVisible) { mDrawBox = boxVisible; }
     void updateSelectionBoxStart(QPointF startPoint) { mBoxStartPoint = getFramePos(startPoint); }

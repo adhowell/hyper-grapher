@@ -95,7 +95,6 @@ void ProceduralView::updateZoom(QPointF newCentre, qreal zoomFactor)
         if (mY1 > y - zoomHeight) y += mY1 - y + zoomHeight;
         if (mY2 < y + zoomHeight) y -= y + zoomHeight - mY2;
     }
-
     mX1 = x - zoomWidth;
     mX2 = x + zoomWidth;
     mY1 = y - zoomHeight;
@@ -112,7 +111,19 @@ void ProceduralView::applyPositionDelta(QPointF delta)
     mY1 -= deltaY;
     mY2 -= deltaY;
     slowUpdate();
-    update();
+}
+
+void ProceduralView::applyFocusPositionDelta(QPointF delta)
+{
+    qreal deltaX = (mX2-mX1)*delta.x()/mRect.width();
+    qreal deltaY = (mY2-mY1)*delta.y()/mRect.height();
+    auto it = std::partition(mNodes.begin(), mNodes.end(),
+                             [](auto n)
+                             {
+                                 return n->focus == true;
+                             });
+    std::for_each(mNodes.begin(), it, [deltaX, deltaY](auto n){ n->x = n->x + deltaX; n->y = n->y + deltaY; });
+    slowUpdate();
 }
 
 QPointF ProceduralView::getFramePos(QPointF scenePos)

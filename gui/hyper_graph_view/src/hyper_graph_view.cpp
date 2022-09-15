@@ -22,6 +22,14 @@ void HyperGraphView::keyPressEvent(QKeyEvent *event)
     switch (event->key()) {
         case Qt::Key_D: mViewItem->toggleDrawDetails(); break;
         case Qt::Key_E: mViewItem->toggleDrawEdges(); break;
+        case Qt::Key_Space: mState = ClickDragState::Move; break;
+    }
+}
+
+void HyperGraphView::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Space) {
+        mState = ClickDragState::Select;
     }
 }
 
@@ -29,11 +37,16 @@ void HyperGraphView::mousePressEvent(QMouseEvent* event)
 {
     QGraphicsView::mousePressEvent(event);
     event->accept();
+    mLastPos = mapToScene(event->pos());
+    if (mState == ClickDragState::Move) {
+        return;
+    }
     if (event->button() & Qt::RightButton) {
-        mLastPos = mapToScene(event->pos());
+        mState = ClickDragState::Pan;
     } else if (event->button() & Qt::LeftButton) {
         mViewItem->deselectAll();
         mViewItem->updateSelectionBoxStart(mapToScene(event->pos()));
+        mState = ClickDragState::Select;
     }
 }
 
@@ -41,14 +54,19 @@ void HyperGraphView::mouseMoveEvent(QMouseEvent* event)
 {
     QGraphicsView::mouseMoveEvent(event); // Otherwise items don't handle mouse-move events
     event->accept();
-    if (event->buttons() & Qt::RightButton) {
-        auto pos = mapToScene(event->pos());
-        mViewItem->applyPositionDelta(pos - mLastPos);
-        mLastPos = pos;
-        update();
-    } else if (event->buttons() & Qt::LeftButton) {
-        mViewItem->drawBox(true);
-        mViewItem->updateSelectionBoxEnd(mapToScene(event->pos()));
+    switch (mState) {
+        case ClickDragState::Pan:
+            mViewItem->applyPositionDelta(mapToScene(event->pos()) - mLastPos);
+            mLastPos = mapToScene(event->pos());
+            break;
+        case ClickDragState::Select:
+            mViewItem->drawBox(true);
+            mViewItem->updateSelectionBoxEnd(mapToScene(event->pos()));
+            break;
+        case ClickDragState::Move:
+            mViewItem->applyFocusPositionDelta(mapToScene(event->pos()) - mLastPos);
+            mLastPos = mapToScene(event->pos());
+            break;
     }
 }
 
@@ -56,7 +74,11 @@ void HyperGraphView::mouseReleaseEvent(QMouseEvent *event)
 {
     QGraphicsView::mouseReleaseEvent(event);
     event->accept();
-    mViewItem->drawBox(false);
+    if (event->buttons() & Qt::LeftButton) {
+        mState = ClickDragState::Select;
+    } else {
+        mViewItem->drawBox(false);
+    }
     mViewItem->update();
 }
 

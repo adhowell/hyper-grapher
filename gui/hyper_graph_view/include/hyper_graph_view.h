@@ -14,6 +14,7 @@ public:
     ~HyperGraphView() override = default;
 
     void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
@@ -23,6 +24,14 @@ public:
     void updateRect() { mViewItem->setRect(rect()); }
 
 private:
+    enum class ClickDragState
+    {
+        Select,
+        Pan,
+        Move
+    };
+
+    ClickDragState mState;
     QPointF mLastPos;
     ProceduralView* mViewItem;
 };
