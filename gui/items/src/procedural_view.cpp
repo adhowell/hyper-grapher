@@ -46,7 +46,7 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
         std::for_each(mNodes.begin(), mIt,
                       [painter, wF, hF, focusPen, defaultPen, this](auto n) {
                           painter->setPen(n->focus ? focusPen : defaultPen);
-                          painter->drawRect(wF*(n->x-mX1) - 5, hF * (n->y - mY1) - 5, 10, 10);
+                          painter->drawRect(wF*(n->x-mX1) - 3, hF * (n->y - mY1) - 3, 6, 6);
                       });
     } else {
         std::for_each(mNodes.begin(), mIt,
@@ -115,14 +115,17 @@ void ProceduralView::applyPositionDelta(QPointF delta)
 
 void ProceduralView::applyFocusPositionDelta(QPointF delta)
 {
-    qreal deltaX = (mX2-mX1)*delta.x()/mRect.width();
-    qreal deltaY = (mY2-mY1)*delta.y()/mRect.height();
+    QPointF frameDelta = {(mX2-mX1)*delta.x()/mRect.width(), (mY2-mY1)*delta.y()/mRect.height()};
     auto it = std::partition(mNodes.begin(), mNodes.end(),
                              [](auto n)
                              {
                                  return n->focus == true;
                              });
-    std::for_each(mNodes.begin(), it, [deltaX, deltaY](auto n){ n->x = n->x + deltaX; n->y = n->y + deltaY; });
+    std::for_each(mNodes.begin(), it,
+                  [frameDelta](auto n)
+                  {
+                      n->applyPositionDelta(frameDelta);
+                  });
     slowUpdate();
 }
 
@@ -143,8 +146,8 @@ void ProceduralView::updateSelectionBoxEnd(QPointF endPoint)
                              {
                                  return n->visible && x2 > n->x && n->x > x1 && y2 > n->y && n->y > y1;
                              });
-    std::for_each(mNodes.begin(), it, [](auto n){ n->focus = true; });
-    std::for_each(it, mNodes.end(), [](auto n){ n->focus = false; });
+    std::for_each(mNodes.begin(), it, [](auto n){ n->setFocus(true); });
+    std::for_each(it, mNodes.end(), [](auto n){ n->setFocus(false); });
     slowUpdate();
 }
 
@@ -155,8 +158,8 @@ void ProceduralView::selectAllVisible()
                              {
                                  return mX2 > n->x && n->x > mX1 && mY2 > n->y && n->y > mY1;
                              });
-    std::for_each(mNodes.begin(), it, [](auto n){ n->focus = true; });
-    std::for_each(it, mNodes.end(), [](auto n){ n->focus = false; });
+    std::for_each(mNodes.begin(), it, [](auto n){ n->setFocus(true); });
+    std::for_each(it, mNodes.end(), [](auto n){ n->setFocus(false); });
     slowUpdate();
 }
 
