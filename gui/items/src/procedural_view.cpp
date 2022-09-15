@@ -46,7 +46,7 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
         std::for_each(mNodes.begin(), mIt,
                       [painter, wF, hF, focusPen, defaultPen, this](auto n) {
                           painter->setPen(n->focus ? focusPen : defaultPen);
-                          painter->drawEllipse(wF*(n->x-mX1) - 5, hF * (n->y - mY1) - 5, 10, 10);
+                          painter->drawRect(wF*(n->x-mX1) - 5, hF * (n->y - mY1) - 5, 10, 10);
                       });
     } else {
         std::for_each(mNodes.begin(), mIt,
@@ -142,6 +142,18 @@ void ProceduralView::updateSelectionBoxEnd(QPointF endPoint)
                              [x1, x2, y1, y2](auto n)
                              {
                                  return n->visible && x2 > n->x && n->x > x1 && y2 > n->y && n->y > y1;
+                             });
+    std::for_each(mNodes.begin(), it, [](auto n){ n->focus = true; });
+    std::for_each(it, mNodes.end(), [](auto n){ n->focus = false; });
+    slowUpdate();
+}
+
+void ProceduralView::selectAllVisible()
+{
+    auto it = std::partition(mNodes.begin(), mNodes.end(),
+                             [this](auto n)
+                             {
+                                 return mX2 > n->x && n->x > mX1 && mY2 > n->y && n->y > mY1;
                              });
     std::for_each(mNodes.begin(), it, [](auto n){ n->focus = true; });
     std::for_each(it, mNodes.end(), [](auto n){ n->focus = false; });

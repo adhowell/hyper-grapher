@@ -20,6 +20,7 @@ void HyperGraphView::keyPressEvent(QKeyEvent *event)
 {
     QGraphicsView::keyPressEvent(event);
     switch (event->key()) {
+        case Qt::Key_A: mViewItem->selectAllVisible(); break;
         case Qt::Key_D: mViewItem->toggleDrawDetails(); break;
         case Qt::Key_E: mViewItem->toggleDrawEdges(); break;
         case Qt::Key_Space: mState = ClickDragState::Move; break;

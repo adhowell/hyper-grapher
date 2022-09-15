@@ -42,6 +42,7 @@ public:
     void updateSelectionBoxStart(QPointF startPoint) { mBoxStartPoint = getFramePos(startPoint); }
     void updateSelectionBoxEnd(QPointF endPoint);
 
+    void selectAllVisible();
     void deselectAll() { std::for_each(mNodes.begin(), mNodes.end(), [](auto n){ n->focus = false; }); }
 
     void toggleDrawDetails();
