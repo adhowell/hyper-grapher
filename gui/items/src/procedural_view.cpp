@@ -56,16 +56,49 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
                       });
     }
     painter->setPen(QColor(0, 0, 0));
-    if (mDrawEdges) {
-        std::for_each(mEdges.begin(), mEdges.end(),
-                      [painter, hF, wF, this](auto e) {
-                          if ((mX2 > e->src->x && e->src->x > mX1) && (mX2 > e->dst->x && e->dst->x > mX1)
-                              && (mY2 > e->src->y && e->src->y > mY1) && (mY2 > e->dst->y && e->dst->y > mY1)) {
-                              painter->drawLine(wF * (e->src->x - mX1), hF * (e->src->y - mY1), wF * (e->dst->x - mX1),
-                                                hF * (e->dst->y - mY1));
-                          }
-                      });
+
+    __gnu_cxx::__normal_iterator<ProceduralEdge**, std::vector<ProceduralEdge*>> edgeIter = mEdges.begin();
+    switch (mEdgeDrawMode)
+    {
+        case EdgeDrawMode::All:
+            edgeIter = std::partition(mEdges.begin(), mEdges.end(),
+                                      [this](auto e)
+                                      {
+                                          return !((e->src->x > mX2 && e->dst->x > mX2)
+                                                   || (mX1 > e->src->x && mX1 > e->dst->x)
+                                                   || (e->src->y > mY2 && e->dst->y > mY2)
+                                                   || (mY1 > e->src->y && mY1 > e->dst->y));
+                                      });
+            break;
+        case EdgeDrawMode::One:
+            edgeIter = std::partition(mEdges.begin(), mEdges.end(),
+                                      [this](auto e)
+                                      {
+                                          return ((mX2 > e->src->x && e->src->x > mX1)
+                                                  && (mY2 > e->src->y && e->src->y > mY1))
+                                                  || ((mX2 > e->dst->x && e->dst->x > mX1)
+                                                  && (mY2 > e->dst->y && e->dst->y > mY1));
+                                      });
+            break;
+        case EdgeDrawMode::Both:
+            edgeIter = std::partition(mEdges.begin(), mEdges.end(),
+                                      [this](auto e)
+                                      {
+                                          return (mX2 > e->src->x && e->src->x > mX1)
+                                                 && (mY2 > e->src->y && e->src->y > mY1)
+                                                 && (mX2 > e->dst->x && e->dst->x > mX1)
+                                                 && (mY2 > e->dst->y && e->dst->y > mY1);
+                                      });
+            break;
+        default: break;
     }
+    std::for_each(mEdges.begin(), edgeIter,
+                  [painter, hF, wF, this](auto e) {
+                      painter->drawLine(wF * (e->src->x - mX1),
+                                        hF * (e->src->y - mY1),
+                                        wF * (e->dst->x - mX1),
+                                        hF * (e->dst->y - mY1));
+                  });
     if (mDrawBox) {
         painter->drawLine(QLineF(wF*(mBoxStartPoint.x()-mX1), hF*(mBoxStartPoint.y()-mY1), wF*(mBoxEndPoint.x()-mX1), hF*(mBoxStartPoint.y()-mY1)));
         painter->drawLine(QLineF(wF*(mBoxEndPoint.x()-mX1), hF*(mBoxStartPoint.y()-mY1), wF*(mBoxEndPoint.x()-mX1), hF*(mBoxEndPoint.y()-mY1)));
@@ -169,9 +202,15 @@ void ProceduralView::toggleDrawDetails()
     update();
 }
 
-void ProceduralView::toggleDrawEdges()
+void ProceduralView::cycleDrawEdges()
 {
-    mDrawEdges = !mDrawEdges;
+    switch (mEdgeDrawMode)
+    {
+        case EdgeDrawMode::All: mEdgeDrawMode = EdgeDrawMode::One; break;
+        case EdgeDrawMode::One: mEdgeDrawMode = EdgeDrawMode::Both; break;
+        case EdgeDrawMode::Both: mEdgeDrawMode = EdgeDrawMode::None; break;
+        case EdgeDrawMode::None: mEdgeDrawMode = EdgeDrawMode::All; break;
+    }
     update();
 }
 

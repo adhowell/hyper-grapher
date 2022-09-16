@@ -10,6 +10,14 @@ public:
     explicit ProceduralView(std::vector<ProceduralNode*> &nodes, std::vector<ProceduralEdge*>& edges);
     ~ProceduralView() override = default;
 
+    enum class EdgeDrawMode
+    {
+        None,
+        All, // All edges are drawn unless definitely outside the frame
+        One, // Draw the edge if one of the end nodes is in the frame
+        Both // Draw the edge if both end nodes are in the frame
+    };
+
     /**
      * Find which elements are visible given the current bounding box.
      */
@@ -46,7 +54,7 @@ public:
     void deselectAll() { std::for_each(mNodes.begin(), mNodes.end(), [](auto n){ n->focus = false; }); }
 
     void toggleDrawDetails();
-    void toggleDrawEdges();
+    void cycleDrawEdges();
 
     void setRect(QRectF rect);
 
@@ -55,7 +63,7 @@ public:
 
 private:
     bool mDrawDetails = true;
-    bool mDrawEdges = true;
+    EdgeDrawMode mEdgeDrawMode = EdgeDrawMode::All;
     bool mDrawBox = false;
 
     QPointF mBoxStartPoint {0, 0};
