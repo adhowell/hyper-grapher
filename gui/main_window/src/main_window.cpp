@@ -27,7 +27,9 @@ MainWindow::MainWindow(QWidget* parent)
     setMinimumSize(600, 400);
 
     mScene->updateRect();
+    mScene->startTimer(std::chrono::milliseconds(50));
 }
+
 
 void MainWindow::resizeEvent(QResizeEvent *event)
 {

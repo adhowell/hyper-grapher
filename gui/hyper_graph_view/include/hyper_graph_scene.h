@@ -19,7 +19,15 @@ public:
 
     void updateRect() { mView->updateRect(); }
 
+    void timerEvent(QTimerEvent* event) override;
+
+public Q_SLOTS:
+    void handleToggleAlgorithmActive() { mLayoutAlgorithmActive = !mLayoutAlgorithmActive; }
+
 private:
+    [[noreturn]] static void layoutThreadWorker(std::vector<ProceduralNode*> nodes, std::vector<ProceduralEdge*> edges, std::atomic<bool>& isActive);
+    std::atomic<bool> mLayoutAlgorithmActive = false;
+
     HyperGraphView* mView;
     ProceduralView* mProceduralView;
     std::vector<ProceduralNode*> mNodes;

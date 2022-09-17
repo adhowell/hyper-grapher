@@ -22,6 +22,10 @@ public:
     void wheelEvent(QWheelEvent* event) override;
 
     void updateRect() { mViewItem->setRect(rect()); }
+    void updateFrame() { mViewItem->slowUpdate(); }
+
+Q_SIGNALS:
+    void toggleAlgorithmActive();
 
 private:
     enum class ClickDragState

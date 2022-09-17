@@ -2,6 +2,8 @@
 #include <QPointF>
 #include <mutex>
 
+#pragma once
+
 
 namespace gui
 {
@@ -10,6 +12,8 @@ struct ProceduralNode {
     double y;
     bool visible = false;
     bool focus = false;
+    double _scheduledDeltaX = 0;
+    double _scheduledDeltaY = 0;
 
     std::mutex m;
 
@@ -18,6 +22,22 @@ struct ProceduralNode {
         std::lock_guard<std::mutex> guard(m);
         x += delta.x();
         y += delta.y();
+    }
+
+    void schedulePositionDelta(QPointF delta)
+    {
+        std::lock_guard<std::mutex> guard(m);
+        _scheduledDeltaX += delta.x();
+        _scheduledDeltaY += delta.y();
+    }
+
+    void applyScheduledPositionDelta()
+    {
+        std::lock_guard<std::mutex> guard(m);
+        x += _scheduledDeltaX;
+        y += _scheduledDeltaY;
+        _scheduledDeltaX = 0.0;
+        _scheduledDeltaY = 0.0;
     }
 
     void setVisible(bool b)

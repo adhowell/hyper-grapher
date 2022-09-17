@@ -14,6 +14,8 @@ public:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
+    static void layoutThreadWorker(core::HyperGraph graph);
+
     gui::HyperGraphScene* mScene;
 };
 }

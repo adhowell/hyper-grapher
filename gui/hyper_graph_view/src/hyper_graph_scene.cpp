@@ -1,7 +1,9 @@
 #include "hyper_graph_view/include/hyper_graph_scene.h"
 #include "items/include/edge_item.h"
+#include "layout_algorithms/include/edge_attraction.h"
 
 #include <QMap>
+#include <thread>
 
 
 namespace gui
@@ -28,5 +30,29 @@ HyperGraphScene::HyperGraphScene(core::HyperGraph& graph) : QGraphicsScene() {
     mProceduralView = new ProceduralView(mNodes, mEdges);
     mView = new HyperGraphView(this, mProceduralView);
     addItem(mProceduralView);
+
+    connect(mView, &HyperGraphView::toggleAlgorithmActive,
+            this, &HyperGraphScene::handleToggleAlgorithmActive);
+
+    std::thread layoutThread (layoutThreadWorker, mNodes, mEdges, std::ref(mLayoutAlgorithmActive));
+    layoutThread.detach();
+}
+
+void HyperGraphScene::layoutThreadWorker(std::vector<ProceduralNode*> nodes, std::vector<ProceduralEdge*> edges, std::atomic<bool>& isActive)
+{
+    auto layoutAlgorithm = EdgeAttraction(nodes, edges);
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::milliseconds (50));
+        if (isActive) {
+            layoutAlgorithm.calculateNext();
+        }
+    }
+}
+
+void HyperGraphScene::timerEvent(QTimerEvent *event)
+{
+    if (mLayoutAlgorithmActive) {
+        mView->updateFrame();
+    }
 }
 }

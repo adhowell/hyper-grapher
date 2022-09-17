@@ -2,6 +2,8 @@
 
 #include <QtDebug>
 
+#pragma once
+
 
 namespace gui
 {
