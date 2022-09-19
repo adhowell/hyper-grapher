@@ -12,6 +12,8 @@ public:
     explicit Node(uint32_t uuid) : mUuid(uuid) {}
     ~Node() = default;
 
+    uint32_t getUuid() const { return mUuid; }
+
 private:
     uint32_t mUuid;
 };

@@ -11,11 +11,25 @@ struct ProceduralNode {
     double x;
     double y;
     bool visible = false;
+    ProceduralNode* parent = nullptr;
     bool focus = false;
     double _scheduledDeltaX = 0;
     double _scheduledDeltaY = 0;
 
     std::mutex m;
+
+    QPointF getPos()
+    {
+        std::lock_guard<std::mutex> guard(m);
+        return {x, y};
+    }
+
+    void setPos(QPointF pos)
+    {
+        std::lock_guard<std::mutex> guard(m);
+        x = pos.x();
+        y = pos.y();
+    }
 
     void applyPositionDelta(QPointF delta)
     {

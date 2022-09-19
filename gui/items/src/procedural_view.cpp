@@ -57,11 +57,17 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
     }
     painter->setPen(QColor(0, 0, 0));
 
+    // Ignore hidden edges
+    auto nonVisibleIter = std::partition(mEdges.begin(), mEdges.end(),
+                                         [](auto e)
+                                         {
+                                             return e->src->visible && e->dst->visible;
+                                         });
     __gnu_cxx::__normal_iterator<ProceduralEdge**, std::vector<ProceduralEdge*>> edgeIter = mEdges.begin();
     switch (mEdgeDrawMode)
     {
         case EdgeDrawMode::All:
-            edgeIter = std::partition(mEdges.begin(), mEdges.end(),
+            edgeIter = std::partition(mEdges.begin(), nonVisibleIter,
                                       [this](auto e)
                                       {
                                           return !((e->src->x > mX2 && e->dst->x > mX2)
@@ -71,7 +77,7 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
                                       });
             break;
         case EdgeDrawMode::One:
-            edgeIter = std::partition(mEdges.begin(), mEdges.end(),
+            edgeIter = std::partition(mEdges.begin(), nonVisibleIter,
                                       [this](auto e)
                                       {
                                           return ((mX2 > e->src->x && e->src->x > mX1)
@@ -81,7 +87,7 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
                                       });
             break;
         case EdgeDrawMode::Both:
-            edgeIter = std::partition(mEdges.begin(), mEdges.end(),
+            edgeIter = std::partition(mEdges.begin(), nonVisibleIter,
                                       [this](auto e)
                                       {
                                           return (mX2 > e->src->x && e->src->x > mX1)
@@ -219,5 +225,42 @@ void ProceduralView::setRect(QRectF rect)
     mRect = rect;
     slowUpdate();
     update();
+}
+
+void ProceduralView::changeHierarchy(bool ascend)
+{
+    // TODO: Shift this to another thread?
+    if (ascend) {
+        std::unordered_map<ProceduralNode*, QPointF> nodeAccumPos;
+        std::unordered_map<ProceduralNode*, double> nodeSum;
+        auto it = std::partition(mNodes.begin(), mNodes.end(),
+                                 [&nodeAccumPos, &nodeSum](auto n)
+                                 {
+                                     nodeAccumPos[n->parent] += n->getPos();
+                                     nodeSum[n->parent]++;
+                                     return n->visible && n->parent && !n->parent->visible;
+                                 });
+        std::for_each(mNodes.begin(), it,
+                      [&nodeAccumPos, &nodeSum](auto n)
+                      {
+                          n->setVisible(false);
+                          n->parent->setVisible(true);
+                          n->parent->setPos(nodeAccumPos[n->parent]/nodeSum[n->parent]);
+                      });
+    } else {
+        auto it = std::partition(mNodes.begin(), mNodes.end(),
+                                 [](auto n)
+                                 {
+                                     return !n->visible && n->parent && n->parent->visible;
+                                 });
+        std::for_each(mNodes.begin(), it,
+                      [](auto n)
+                      {
+                          n->setVisible(true);
+                          n->setPos(n->parent->getPos());
+                          n->parent->setVisible(false);
+                      });
+    }
+    slowUpdate();
 }
 }

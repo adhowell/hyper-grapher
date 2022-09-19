@@ -14,7 +14,7 @@ public:
 
     uint32_t createHyperEdge(std::vector<Node> nodes);
     uint32_t createHyperEdge(std::vector<Node> srcNodes, std::vector<Node> dstNodes);
-    uint32_t createMetaEdge(const HyperEdge& src, const HyperEdge& dst);
+    uint32_t createMetaEdge(HyperEdge src, HyperEdge dst);
 
     std::vector<HyperEdge>& getHyperEdges() { return mHyperEdges; }
     std::vector<MetaEdge>& getMetaEdges() { return mMetaEdges; }

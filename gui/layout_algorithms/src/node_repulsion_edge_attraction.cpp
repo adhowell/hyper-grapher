@@ -7,7 +7,12 @@ namespace gui
 {
     void NodeRepulsionEdgeAttraction::calculateNext()
     {
-        std::for_each(mEdges.begin(), mEdges.end(),
+        auto it = std::partition(mEdges.begin(), mEdges.end(),
+                                 [](auto e)
+                                 {
+                                     return e->src->visible && e->dst->visible;
+                                 });
+        std::for_each(mEdges.begin(), it,
                       [this](auto e)
                       {
                           double deltaX = e->dst->x - e->src->x;

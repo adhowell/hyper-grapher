@@ -24,6 +24,8 @@ void HyperGraphView::keyPressEvent(QKeyEvent *event)
         case Qt::Key_D: mViewItem->toggleDrawDetails(); break;
         case Qt::Key_E: mViewItem->cycleDrawEdges(); break;
         case Qt::Key_Q: Q_EMIT toggleAlgorithmActive(); break;
+        case Qt::Key_Up: mViewItem->changeHierarchy(true); break;
+        case Qt::Key_Down: mViewItem->changeHierarchy(false); break;
         case Qt::Key_Space: mState = ClickDragState::Move; break;
     }
 }

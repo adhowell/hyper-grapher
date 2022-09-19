@@ -13,24 +13,35 @@ namespace core {
  */
 class HyperEdge : public Entity {
 public:
-    explicit HyperEdge(uint32_t uuid, std::vector<Node> nodes) : Entity(uuid), mContents(std::move(nodes)), mStartDst(nodes.size()) {}
-    HyperEdge(uint32_t uuid, std::vector<Node> srcNodes, std::vector<Node> dstNodes)
-            : HyperEdge(uuid, [&srcNodes, &dstNodes]
-            {
-                for (auto n : dstNodes) {
-                    srcNodes.push_back(n);
-                }
-                return srcNodes;
-            }())
+    explicit HyperEdge(uint32_t uuid, const std::vector<Node>& srcNodes, const std::vector<Node>& dstNodes)
+    : HyperEdge(uuid, ([&srcNodes, &dstNodes]()
     {
-        mStartDst = srcNodes.size();
+        auto combinedNodes = srcNodes;
+        for (auto n : dstNodes) {
+            combinedNodes.push_back(n);
+        }
+        return combinedNodes;
+    }()))
+    {
+        mNumSrc = srcNodes.size();
+        mIsDirectional = true;
     }
-    ~HyperEdge() = default;
+
+    explicit HyperEdge(uint32_t uuid, const std::vector<Node>& nodes)
+    : Entity(uuid), mContents(nodes)
+    {
+    }
+
+    virtual ~HyperEdge() = default;
 
     std::vector<Node>& getContents() { return mContents; }
+    __gnu_cxx::__normal_iterator<Node*, std::vector<Node>> getSeparator() { return std::next(mContents.begin(), mNumSrc); }
 
-private:
+    bool isDirectional() const { return mIsDirectional; }
+
+protected:
     std::vector<Node> mContents;
-    size_t mStartDst;
+    bool mIsDirectional = false;
+    size_t mNumSrc = 0;
 };
 }

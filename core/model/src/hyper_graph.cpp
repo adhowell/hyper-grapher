@@ -19,7 +19,7 @@ namespace core
         return edge.getUuid();
     }
 
-    uint32_t HyperGraph::createMetaEdge(const HyperEdge& src, const HyperEdge& dst)
+    uint32_t HyperGraph::createMetaEdge(HyperEdge src, HyperEdge dst)
     {
         auto edge = MetaEdge(mUuid++, src, dst);
         mMetaEdges.emplace_back(edge);

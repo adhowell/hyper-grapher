@@ -50,13 +50,38 @@ public:
     void updateSelectionBoxStart(QPointF startPoint) { mBoxStartPoint = getFramePos(startPoint); }
     void updateSelectionBoxEnd(QPointF endPoint);
 
+    /**
+     * Highlights every node in the current frame
+     */
     void selectAllVisible();
+
     void deselectAll() { std::for_each(mNodes.begin(), mNodes.end(), [](auto n){ n->focus = false; }); }
 
     void toggleDrawDetails();
+
+    /**
+     * Cycles between the edge-rendering modes. In the current order these are:
+     * 1. Render all edges.
+     * 2. Render edges with at least one end node in-frame.
+     * 3. Render edges with both end nodes in-frame.
+     * 4. Don't render any edges.
+     */
     void cycleDrawEdges();
 
+    /**
+     * Re-sizes the frame according to the window size.
+     * TODO: This does not seem very good but I can't think of a better way...
+     *
+     * @param rect - The size rect of the current window.
+     */
     void setRect(QRectF rect);
+
+    /**
+     * Changes the current hierarchy level according to the given bool:
+     * True: Hides every visible node which has a non-visible non-null parent, and shows the parent.
+     * False: Hides every node with a non-visible child, and shows the child.
+     */
+    void changeHierarchy(bool ascend);
 
     QRectF boundingRect() const override { return mRect; };
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;

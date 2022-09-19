@@ -2,9 +2,9 @@ This is a project for testing rendering methods of fairly large directional hype
 
 Stuff:
 - [x] Multiple edge rendering modes
-- [ ] Layout algorithms
+- [x] Layout algorithms
 - [ ] Graph and hyper-graph file format parsers
 - [ ] Node / edge attributes
-- [ ] Hierarchy
+- [x] Hierarchy
 - [ ] Improved multi-threading
 - [ ] GPU acceleration
