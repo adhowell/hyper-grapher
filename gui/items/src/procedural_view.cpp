@@ -6,6 +6,8 @@
 
 namespace gui
 {
+    using PNT = ProceduralNode::Type;
+
 ProceduralView::ProceduralView(std::vector<ProceduralNode*> &nodes, std::vector<ProceduralEdge*> &edges) : QGraphicsItem(), mNodes(nodes), mEdges(edges)
 {
     bool first = true;
@@ -29,7 +31,8 @@ void ProceduralView::slowUpdate()
     mIt = std::partition(mNodes.begin(), mNodes.end(),
                          [this](auto n)
                          {
-                             return n->visible && mX2 > n->x && n->x > mX1 && mY2 > n->y && n->y > mY1;
+                             return n->visible
+                             && mX2 > n->x && n->x > mX1 && mY2 > n->y && n->y > mY1;
                          });
     update();
 }
@@ -46,13 +49,29 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
         std::for_each(mNodes.begin(), mIt,
                       [painter, wF, hF, focusPen, defaultPen, this](auto n) {
                           painter->setPen(n->focus ? focusPen : defaultPen);
-                          painter->drawRect(wF*(n->x-mX1) - 3, hF * (n->y - mY1) - 3, 6, 6);
+                          switch (n->type) {
+                              case PNT::Edge:
+                                  painter->drawRect(wF*(n->x-mX1)-5, hF*(n->y-mY1)-5, 10, 10);
+                                  break;
+                              case PNT::Node:
+                                  painter->drawRect(wF*(n->x-mX1)-3, hF*(n->y-mY1)-3, 6, 6);
+                                  break;
+                              case PNT::Join:
+                                  painter->drawRect(wF*(n->x-mX1)-2, hF*(n->y-mY1)-2, 4, 4);
+                                  break;
+                          }
                       });
     } else {
         std::for_each(mNodes.begin(), mIt,
                       [painter, wF, hF, focusPen, defaultPen, this](auto n) {
                           painter->setPen(n->focus ? focusPen : defaultPen);
-                          painter->drawLine(wF*(n->x-mX1), hF*(n->y-mY1), wF*(n->x-mX1), hF*(n->y-mY1));
+                          switch (n->type) {
+                              case PNT::Edge:
+                              case PNT::Node:
+                                  painter->drawLine(wF*(n->x-mX1), hF*(n->y-mY1), wF*(n->x-mX1), hF*(n->y-mY1));
+                                  break;
+                              case PNT::Join:;
+                          }
                       });
     }
     painter->setPen(QColor(0, 0, 0));
@@ -236,29 +255,45 @@ void ProceduralView::changeHierarchy(bool ascend)
         auto it = std::partition(mNodes.begin(), mNodes.end(),
                                  [&nodeAccumPos, &nodeSum](auto n)
                                  {
-                                     nodeAccumPos[n->parent] += n->getPos();
-                                     nodeSum[n->parent]++;
-                                     return n->visible && n->parent && !n->parent->visible;
+                                     bool hasVisibleParent = false;
+                                     for (auto p : n->parents) {
+                                         nodeAccumPos[p] += n->getPos();
+                                         nodeSum[p]++;
+                                         if (p->visible) {
+                                             hasVisibleParent = true;
+                                         }
+                                     }
+                                     return n->visible && !n->parents.empty() && !hasVisibleParent;
                                  });
         std::for_each(mNodes.begin(), it,
                       [&nodeAccumPos, &nodeSum](auto n)
                       {
                           n->setVisible(false);
-                          n->parent->setVisible(true);
-                          n->parent->setPos(nodeAccumPos[n->parent]/nodeSum[n->parent]);
+                          for (auto p : n->parents) {
+                              p->setVisible(true);
+                              p->setPos(nodeAccumPos[p]/nodeSum[p]);
+                          }
                       });
     } else {
         auto it = std::partition(mNodes.begin(), mNodes.end(),
                                  [](auto n)
                                  {
-                                     return !n->visible && n->parent && n->parent->visible;
+                                     return !n->visible && std::any_of(n->parents.begin(), n->parents.end(),
+                                                                       [](auto p)
+                                                                       {
+                                                                           return p->visible;
+                                                                       });
                                  });
         std::for_each(mNodes.begin(), it,
                       [](auto n)
                       {
                           n->setVisible(true);
-                          n->setPos(n->parent->getPos());
-                          n->parent->setVisible(false);
+                          QPointF accumPos {};
+                          for (auto p : n->parents) {
+                              accumPos += p->getPos();
+                              p->setVisible(false);
+                          }
+                          n->setPos(accumPos/n->parents.size());
                       });
     }
     slowUpdate();

@@ -10,12 +10,8 @@ MainWindow::MainWindow(QWidget* parent)
 {
     core::HyperGraph graph;
 
-    auto last = graph.createHyperEdge({core::Node(0)});
-    uint32_t curr = 0;
-    for (uint32_t i = 1; i < 10000; i+=2) {
-        curr = graph.createHyperEdge({core::Node(i)}, {core::Node(i+1)});
-        graph.createMetaEdge(graph.getHyperEdge(last), graph.getHyperEdge(curr));
-        last = curr;
+    for (uint32_t i = 0; i < 10000; i++) {
+        graph.createHyperEdge({graph.createNode(i), graph.createNode(i+1), graph.createNode(i+2)});
     }
     mScene = new HyperGraphScene(graph);
 

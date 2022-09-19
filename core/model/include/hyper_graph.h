@@ -1,4 +1,6 @@
-#include "meta_edge.h"
+#include "hyper_edge.h"
+
+#include <unordered_map>
 
 #pragma once
 
@@ -12,18 +14,16 @@ public:
     HyperGraph() = default;
     ~HyperGraph() = default;
 
-    uint32_t createHyperEdge(std::vector<Node> nodes);
-    uint32_t createHyperEdge(std::vector<Node> srcNodes, std::vector<Node> dstNodes);
-    uint32_t createMetaEdge(HyperEdge src, HyperEdge dst);
+    Node* createNode(int label);
+    HyperEdge* createHyperEdge(std::vector<Entity*> nodes);
 
-    std::vector<HyperEdge>& getHyperEdges() { return mHyperEdges; }
-    std::vector<MetaEdge>& getMetaEdges() { return mMetaEdges; }
+    std::vector<HyperEdge*>& getHyperEdges() { return mHyperEdges; }
 
-    HyperEdge getHyperEdge(uint32_t uuid);
+    HyperEdge* getHyperEdge(uint32_t uuid);
 
 private:
     uint32_t mUuid = 0;
-    std::vector<MetaEdge> mMetaEdges;
-    std::vector<HyperEdge> mHyperEdges;
+    std::unordered_map<int, Node*> mLabelToNode; // Placeholder
+    std::vector<HyperEdge*> mHyperEdges;
 };
 }

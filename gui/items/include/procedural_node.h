@@ -1,6 +1,7 @@
 #include <QtMath>
 #include <QPointF>
 #include <mutex>
+#include <set>
 
 #pragma once
 
@@ -8,10 +9,17 @@
 namespace gui
 {
 struct ProceduralNode {
+    enum class Type {
+        Node,
+        Edge,
+        Join,
+    };
+
     double x;
     double y;
     bool visible = false;
-    ProceduralNode* parent = nullptr;
+    Type type = Type::Node;
+    std::set<ProceduralNode*> parents{};
     bool focus = false;
     double _scheduledDeltaX = 0;
     double _scheduledDeltaY = 0;
@@ -29,6 +37,12 @@ struct ProceduralNode {
         std::lock_guard<std::mutex> guard(m);
         x = pos.x();
         y = pos.y();
+    }
+
+    void addParent(ProceduralNode* parent)
+    {
+        std::lock_guard<std::mutex> guard(m);
+        parents.emplace(parent);
     }
 
     void applyPositionDelta(QPointF delta)

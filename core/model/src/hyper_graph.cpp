@@ -5,31 +5,27 @@
 
 namespace core
 {
-    uint32_t HyperGraph::createHyperEdge(std::vector<Node> nodes)
+    Node* HyperGraph::createNode(int label)
     {
-        auto edge = HyperEdge(mUuid++, std::move(nodes));
+        if (mLabelToNode.find(label) != mLabelToNode.end()) {
+            return mLabelToNode[label];
+        }
+        auto n = new Node(mUuid++);
+        mLabelToNode[label] = n;
+        return n;
+    }
+
+    HyperEdge* HyperGraph::createHyperEdge(std::vector<Entity*> nodes)
+    {
+        auto edge = new HyperEdge(mUuid++, nodes);
         mHyperEdges.emplace_back(edge);
-        return edge.getUuid();
+        return edge;
     }
 
-    uint32_t HyperGraph::createHyperEdge(std::vector<Node> srcNodes, std::vector<Node> dstNodes)
-    {
-        auto edge = HyperEdge(mUuid++, std::move(srcNodes), std::move(dstNodes));
-        mHyperEdges.emplace_back(edge);
-        return edge.getUuid();
-    }
-
-    uint32_t HyperGraph::createMetaEdge(HyperEdge src, HyperEdge dst)
-    {
-        auto edge = MetaEdge(mUuid++, src, dst);
-        mMetaEdges.emplace_back(edge);
-        return edge.getUuid();
-    }
-
-    HyperEdge HyperGraph::getHyperEdge(uint32_t uuid)
+    HyperEdge* HyperGraph::getHyperEdge(uint32_t uuid)
     {
         for (const auto& hyperEdge : mHyperEdges) {
-            if (uuid == hyperEdge.getUuid()) {
+            if (uuid == hyperEdge->getUuid()) {
                 return hyperEdge;
             }
         }

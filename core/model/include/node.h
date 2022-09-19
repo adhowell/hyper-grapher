@@ -1,3 +1,5 @@
+#include "entity.h"
+
 #include <cstdint>
 
 #pragma once
@@ -7,14 +9,9 @@ namespace core {
 /**
  * Nodes are the least significant element in the graph hierarchy.
  */
-class Node {
+class Node : public Entity {
 public:
-    explicit Node(uint32_t uuid) : mUuid(uuid) {}
+    explicit Node(uint32_t uuid) : Entity(uuid) {}
     ~Node() = default;
-
-    uint32_t getUuid() const { return mUuid; }
-
-private:
-    uint32_t mUuid;
 };
 }

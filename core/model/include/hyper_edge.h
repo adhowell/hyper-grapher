@@ -13,35 +13,16 @@ namespace core {
  */
 class HyperEdge : public Entity {
 public:
-    explicit HyperEdge(uint32_t uuid, const std::vector<Node>& srcNodes, const std::vector<Node>& dstNodes)
-    : HyperEdge(uuid, ([&srcNodes, &dstNodes]()
-    {
-        auto combinedNodes = srcNodes;
-        for (auto n : dstNodes) {
-            combinedNodes.push_back(n);
-        }
-        return combinedNodes;
-    }()))
-    {
-        mNumSrc = srcNodes.size();
-        mIsDirectional = true;
-    }
-
-    explicit HyperEdge(uint32_t uuid, const std::vector<Node>& nodes)
+    explicit HyperEdge(uint32_t uuid, const std::vector<Entity*>& nodes)
     : Entity(uuid), mContents(nodes)
     {
     }
 
     virtual ~HyperEdge() = default;
 
-    std::vector<Node>& getContents() { return mContents; }
-    __gnu_cxx::__normal_iterator<Node*, std::vector<Node>> getSeparator() { return std::next(mContents.begin(), mNumSrc); }
-
-    bool isDirectional() const { return mIsDirectional; }
+    std::vector<Entity*>& getContents() { return mContents; }
 
 protected:
-    std::vector<Node> mContents;
-    bool mIsDirectional = false;
-    size_t mNumSrc = 0;
+    std::vector<Entity*> mContents;
 };
 }
