@@ -1,4 +1,6 @@
-This is a project for testing rendering methods of fairly large directional hyper-graphs in Qt/C++
+This is a project for testing rendering methods of fairly large hyper-graphs in Qt/C++
+
+![hyper-grapher-example](https://user-images.githubusercontent.com/26089633/191096169-9e500dbd-9680-4032-97e4-3298b6e47085.PNG)
 
 Stuff:
 - [x] Multiple edge rendering modes
