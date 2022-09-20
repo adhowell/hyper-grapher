@@ -21,6 +21,9 @@ public:
 
     void timerEvent(QTimerEvent* event) override;
 
+Q_SIGNALS:
+    void updateNumSelected(int numSelected);
+
 public Q_SLOTS:
     void handleToggleAlgorithmActive() { mLayoutAlgorithmActive = !mLayoutAlgorithmActive; }
 

@@ -18,6 +18,8 @@ public:
         Both // Draw the edge if both end nodes are in the frame
     };
 
+    int getNumSelected() const { return mNumSelected; }
+
     /**
      * Find which elements are visible given the current bounding box.
      */
@@ -55,7 +57,7 @@ public:
      */
     void selectAllVisible();
 
-    void deselectAll() { std::for_each(mNodes.begin(), mNodes.end(), [](auto n){ n->focus = false; }); }
+    void deselectAll();
 
     void toggleDrawDetails();
 
@@ -91,6 +93,7 @@ private:
     EdgeDrawMode mEdgeDrawMode = EdgeDrawMode::All;
     bool mDrawBox = false;
 
+    int mNumSelected = 0;
     QPointF mBoxStartPoint {0, 0};
     QPointF mBoxEndPoint {0, 0};
 

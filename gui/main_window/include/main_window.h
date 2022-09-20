@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QGraphicsScene>
+#include <QLabel>
 
 
 namespace gui
@@ -13,7 +14,11 @@ public:
 
     void resizeEvent(QResizeEvent *event) override;
 
+public Q_SLOTS:
+    void handleUpdateNumSelected(int numSelected);
+
 private:
     gui::HyperGraphScene* mScene;
+    QLabel* mNumSelectedLabel;
 };
 }

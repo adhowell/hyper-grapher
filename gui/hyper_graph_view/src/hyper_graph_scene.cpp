@@ -122,5 +122,6 @@ void HyperGraphScene::timerEvent(QTimerEvent *event)
     if (mLayoutAlgorithmActive) {
         mView->updateFrame();
     }
+    Q_EMIT updateNumSelected(mView->getNumSelected());
 }
 }

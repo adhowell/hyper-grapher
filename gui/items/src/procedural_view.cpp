@@ -206,6 +206,7 @@ void ProceduralView::updateSelectionBoxEnd(QPointF endPoint)
                              {
                                  return n->visible && x2 > n->x && n->x > x1 && y2 > n->y && n->y > y1;
                              });
+    mNumSelected = it - mNodes.begin();
     std::for_each(mNodes.begin(), it, [](auto n){ n->setFocus(true); });
     std::for_each(it, mNodes.end(), [](auto n){ n->setFocus(false); });
     slowUpdate();
@@ -216,11 +217,22 @@ void ProceduralView::selectAllVisible()
     auto it = std::partition(mNodes.begin(), mNodes.end(),
                              [this](auto n)
                              {
-                                 return mX2 > n->x && n->x > mX1 && mY2 > n->y && n->y > mY1;
+                                 return n->visible && mX2 > n->x && n->x > mX1 && mY2 > n->y && n->y > mY1;
                              });
+    mNumSelected = it - mNodes.begin();
     std::for_each(mNodes.begin(), it, [](auto n){ n->setFocus(true); });
     std::for_each(it, mNodes.end(), [](auto n){ n->setFocus(false); });
     slowUpdate();
+}
+
+void ProceduralView::deselectAll()
+{
+    std::for_each(mNodes.begin(), mNodes.end(),
+                  [](auto n)
+                  {
+                      n->focus = false;
+                  });
+    mNumSelected = 0;
 }
 
 void ProceduralView::toggleDrawDetails()

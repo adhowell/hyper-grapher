@@ -13,6 +13,8 @@ public:
     explicit HyperGraphView(QGraphicsScene* scene, ProceduralView* viewItem, QWidget* parent = nullptr);
     ~HyperGraphView() override = default;
 
+    int getNumSelected() const { return mViewItem->getNumSelected(); }
+
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
 
