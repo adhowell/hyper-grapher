@@ -124,6 +124,8 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
                                         wF * (e->dst->x - mX1),
                                         hF * (e->dst->y - mY1));
                   });
+
+    painter->setPen(QColor(0, 0, 0));
     if (mDrawBox) {
         painter->drawLine(QLineF(wF*(mBoxStartPoint.x()-mX1), hF*(mBoxStartPoint.y()-mY1), wF*(mBoxEndPoint.x()-mX1), hF*(mBoxStartPoint.y()-mY1)));
         painter->drawLine(QLineF(wF*(mBoxEndPoint.x()-mX1), hF*(mBoxStartPoint.y()-mY1), wF*(mBoxEndPoint.x()-mX1), hF*(mBoxEndPoint.y()-mY1)));

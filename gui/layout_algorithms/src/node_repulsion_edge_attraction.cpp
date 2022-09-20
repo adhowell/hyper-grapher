@@ -19,8 +19,13 @@ namespace gui
                           double deltaY = e->dst->y - e->src->y;
                           double force = mAttraction * (qSqrt(deltaX*deltaX + deltaY*deltaY) - mRestingDistance);
 
-                          double xForce = std::clamp(deltaX*force, -100.0, 100.0);
-                          double yForce = std::clamp(deltaY*force, -100.0, 100.0);
+                          double xForce = deltaX*force;
+                          double yForce = deltaY*force;
+                          auto normFactor = qMax(qAbs(xForce)/100.0, qAbs(yForce)/100.0);
+                          if (normFactor > 1.0) {
+                              xForce /= normFactor;
+                              yForce /= normFactor;
+                          }
                           e->src->schedulePositionDelta({xForce, yForce});
                           e->dst->schedulePositionDelta({-xForce, -yForce});
                       });
