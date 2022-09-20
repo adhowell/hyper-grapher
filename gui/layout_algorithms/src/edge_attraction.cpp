@@ -17,11 +17,12 @@ namespace gui
                       {
                           double deltaX = e->dst->x - e->src->x;
                           double deltaY = e->dst->y - e->src->y;
-                          double force = qMin(100.0, mAttraction * (qSqrt(deltaX*deltaX + deltaY*deltaY) - mRestingDistance));
+                          double force = mAttraction * (qSqrt(deltaX*deltaX + deltaY*deltaY) - mRestingDistance);
 
-                          // Fast but leads to Inf/NaN values
-                          e->src->schedulePositionDelta({deltaX*force, deltaY*force});
-                          e->dst->schedulePositionDelta({-deltaX*force, -deltaY*force});
+                          double xForce = std::clamp(deltaX*force, -100.0, 100.0);
+                          double yForce = std::clamp(deltaY*force, -100.0, 100.0);
+                          e->src->schedulePositionDelta({xForce, yForce});
+                          e->dst->schedulePositionDelta({-xForce, -yForce});
                       });
 
         std::for_each(mNodes.begin(), mNodes.end(),

@@ -15,6 +15,7 @@ struct ProceduralNode {
         Join,
     };
 
+    const uint32_t uuid;
     double x;
     double y;
     bool visible = false;

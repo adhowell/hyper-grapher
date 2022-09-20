@@ -74,7 +74,7 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
                           }
                       });
     }
-    painter->setPen(QColor(0, 0, 0));
+    painter->setPen(QColor(0, 0, 0, 50));
 
     // Ignore hidden edges
     auto nonVisibleIter = std::partition(mEdges.begin(), mEdges.end(),
@@ -82,7 +82,7 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
                                          {
                                              return e->src->visible && e->dst->visible;
                                          });
-    __gnu_cxx::__normal_iterator<ProceduralEdge**, std::vector<ProceduralEdge*>> edgeIter = mEdges.begin();
+    auto edgeIter = mEdges.begin();
     switch (mEdgeDrawMode)
     {
         case EdgeDrawMode::All:

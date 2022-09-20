@@ -96,7 +96,7 @@ private:
 
     std::vector<ProceduralNode*> &mNodes;
     std::vector<ProceduralEdge*> &mEdges;
-    __gnu_cxx::__normal_iterator<ProceduralNode**, std::vector<ProceduralNode*>> mIt;
+    std::vector<ProceduralNode*>::iterator mIt;
     qreal mX1, mX2, mY1, mY2;
     QRectF mRect;
 };
