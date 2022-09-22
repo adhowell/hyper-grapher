@@ -59,7 +59,15 @@ public:
 
     void deselectAll();
 
+    /**
+     * Toggle the drawing of nodes
+     */
     void toggleDrawDetails();
+
+    /**
+     * Toggle the drawing of weighted edges, where weight is indicated by line thickness
+     */
+    void toggleDrawWeights();
 
     /**
      * Cycles between the edge-rendering modes. In the current order these are:
@@ -90,6 +98,7 @@ public:
 
 private:
     bool mDrawDetails = true;
+    bool mDrawWeights = true;
     EdgeDrawMode mEdgeDrawMode = EdgeDrawMode::All;
     bool mDrawBox = false;
 

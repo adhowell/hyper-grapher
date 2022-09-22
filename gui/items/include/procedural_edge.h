@@ -11,5 +11,6 @@ struct ProceduralEdge
 {
     ProceduralNode* src;
     ProceduralNode* dst;
+    int weight = 0;
 };
 }

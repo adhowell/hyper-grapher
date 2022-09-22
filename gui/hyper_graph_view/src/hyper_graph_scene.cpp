@@ -47,7 +47,7 @@ HyperGraphScene::HyperGraphScene(core::HyperGraph& graph) : QGraphicsScene() {
                               auto foundPN = entityToProcNode[n->getUuid()];
                               joinNode->addParent(node);
                               foundPN->addParent(node);
-                              mEdges.emplace_back(new ProceduralEdge{foundPN, joinNode});
+                              mEdges.emplace_back(new ProceduralEdge{foundPN, joinNode, 1});
                           });
         } else {
             auto n1 = hyperEdge->getContents()[0];
@@ -73,6 +73,7 @@ HyperGraphScene::HyperGraphScene(core::HyperGraph& graph) : QGraphicsScene() {
                 mEdges.emplace_back(edge);
                 procNodesToEdge[nodeKey] = edge;
             }
+            procNodesToEdge[nodeKey]->weight++;
         }
         x += 5;
         if (x > maxX) {
@@ -91,6 +92,7 @@ HyperGraphScene::HyperGraphScene(core::HyperGraph& graph) : QGraphicsScene() {
                     mEdges.emplace_back(edge);
                     procNodesToEdge[nodeKey] = edge;
                 }
+                procNodesToEdge[nodeKey]->weight++;
             }
         }
     }

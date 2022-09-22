@@ -20,6 +20,7 @@ void HyperGraphView::keyPressEvent(QKeyEvent *event)
 {
     QGraphicsView::keyPressEvent(event);
     switch (event->key()) {
+        case Qt::Key_W: mViewItem->toggleDrawWeights(); break;
         case Qt::Key_A: mViewItem->selectAllVisible(); break;
         case Qt::Key_D: mViewItem->toggleDrawDetails(); break;
         case Qt::Key_E: mViewItem->cycleDrawEdges(); break;
