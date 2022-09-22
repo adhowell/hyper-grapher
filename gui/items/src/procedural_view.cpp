@@ -39,8 +39,8 @@ void ProceduralView::slowUpdate()
 
 void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-    qreal wF = mRect.width()/(mX2-mX1);
-    qreal hF = mRect.height()/(mY2-mY1);
+    qreal wF {mRect.width()/(mX2-mX1)};
+    qreal hF {mRect.height()/(mY2-mY1)};
     painter->setRenderHint(QPainter::Antialiasing);
     auto defaultPen = QPen();
     auto focusPen = QPen();
@@ -141,11 +141,14 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
 
 void ProceduralView::updateZoom(QPointF newCentre, qreal zoomFactor)
 {
-    qreal currWidth = mX2 - mX1;
-    qreal currHeight = mY2 - mY1;
-    qreal zoomWidth = currWidth * 0.5 / zoomFactor;
-    qreal zoomHeight = currHeight * 0.5 / zoomFactor;
+    qreal currWidth {mX2 - mX1};
+    qreal currHeight {mY2 - mY1};
+    qreal zoomWidth {currWidth * 0.5 / zoomFactor};
+    qreal zoomHeight {currHeight * 0.5 / zoomFactor};
 
+    qreal x {currWidth*0.5 + mX1};
+    qreal y {currHeight*0.5 + mY1};
+    /* Too confusing?
     qreal x, y;
     if (zoomFactor < 1) {
         x = currWidth*0.5 + mX1;
@@ -160,6 +163,7 @@ void ProceduralView::updateZoom(QPointF newCentre, qreal zoomFactor)
         if (mY1 > y - zoomHeight) y += mY1 - y + zoomHeight;
         if (mY2 < y + zoomHeight) y -= y + zoomHeight - mY2;
     }
+    */
     mX1 = x - zoomWidth;
     mX2 = x + zoomWidth;
     mY1 = y - zoomHeight;
@@ -169,8 +173,8 @@ void ProceduralView::updateZoom(QPointF newCentre, qreal zoomFactor)
 
 void ProceduralView::applyPositionDelta(QPointF delta)
 {
-    qreal deltaX = (mX2-mX1)*delta.x()/mRect.width();
-    qreal deltaY = (mY2-mY1)*delta.y()/mRect.height();
+    qreal deltaX {(mX2-mX1)*delta.x()/mRect.width()};
+    qreal deltaY {(mY2-mY1)*delta.y()/mRect.height()};
     mX1 -= deltaX;
     mX2 -= deltaX;
     mY1 -= deltaY;
@@ -180,7 +184,7 @@ void ProceduralView::applyPositionDelta(QPointF delta)
 
 void ProceduralView::applyFocusPositionDelta(QPointF delta)
 {
-    QPointF frameDelta = {(mX2-mX1)*delta.x()/mRect.width(), (mY2-mY1)*delta.y()/mRect.height()};
+    QPointF frameDelta {(mX2-mX1)*delta.x()/mRect.width(), (mY2-mY1)*delta.y()/mRect.height()};
     auto it = std::partition(mNodes.begin(), mNodes.end(),
                              [](auto n)
                              {
@@ -202,10 +206,10 @@ QPointF ProceduralView::getFramePos(QPointF scenePos)
 void ProceduralView::updateSelectionBoxEnd(QPointF endPoint)
 {
     mBoxEndPoint = getFramePos(endPoint);
-    qreal x1 = qMin(mBoxStartPoint.x(), mBoxEndPoint.x());
-    qreal x2 = qMax(mBoxStartPoint.x(), mBoxEndPoint.x());
-    qreal y1 = qMin(mBoxStartPoint.y(), mBoxEndPoint.y());
-    qreal y2 = qMax(mBoxStartPoint.y(), mBoxEndPoint.y());
+    qreal x1 {qMin(mBoxStartPoint.x(), mBoxEndPoint.x())};
+    qreal x2 {qMax(mBoxStartPoint.x(), mBoxEndPoint.x())};
+    qreal y1 {qMin(mBoxStartPoint.y(), mBoxEndPoint.y())};
+    qreal y2 {qMax(mBoxStartPoint.y(), mBoxEndPoint.y())};
     auto it = std::partition(mNodes.begin(), mIt,
                              [x1, x2, y1, y2](auto n)
                              {
