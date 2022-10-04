@@ -7,12 +7,12 @@ namespace gui
 {
     void NodeRepulsionEdgeAttraction::calculateNext()
     {
-        auto it = std::partition(mEdges.begin(), mEdges.end(),
+        auto edgeIt = std::partition(mEdges.begin(), mEdges.end(),
                                  [](auto e)
                                  {
                                      return e->src->visible && e->dst->visible;
                                  });
-        std::for_each(mEdges.begin(), it,
+        std::for_each(mEdges.begin(), edgeIt,
                       [this](auto e)
                       {
                           double deltaX = e->dst->x - e->src->x;
@@ -30,15 +30,25 @@ namespace gui
                           e->dst->schedulePositionDelta({-xForce, -yForce});
                       });
 
-        for (auto itI = mNodes.begin(); itI != mNodes.end(); itI++) {
-            for (auto itJ = itI; itJ != mNodes.end(); itJ++) {
+        auto nodeIt = std::partition(mNodes.begin(), mNodes.end(),
+                                     [](auto n)
+                                     {
+                                         return n->visible;
+                                     });
+        for (auto itI = mNodes.begin(); itI != nodeIt; itI++) {
+            for (auto itJ = itI+1; itJ != nodeIt; itJ++) {
                 double deltaX = (*itI)->x - (*itJ)->x;
                 double deltaY = (*itI)->y - (*itJ)->y;
                 double hypot = qSqrt(deltaX*deltaX + deltaY*deltaY);
                 double force = qMin(100.0, 1.0 / (hypot*hypot));
 
-                double xForce = std::clamp(deltaX*force, -100.0, 100.0);
-                double yForce = std::clamp(deltaY*force, -100.0, 100.0);
+                double xForce = deltaX*force;
+                double yForce = deltaY*force;
+                auto normFactor = qMax(qAbs(xForce)/100.0, qAbs(yForce)/100.0);
+                if (normFactor > 1.0) {
+                    xForce /= normFactor;
+                    yForce /= normFactor;
+                }
                 (*itI)->schedulePositionDelta({xForce, yForce});
                 (*itJ)->schedulePositionDelta({-xForce, -yForce});
             }
