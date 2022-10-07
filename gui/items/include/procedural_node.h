@@ -27,6 +27,8 @@ struct ProceduralNode {
 
     std::mutex m;
 
+    ProceduralNode(uint32_t uuid, double x, double y, bool visible, Type type) : uuid(uuid), x(x), y(y), visible(visible), type(type) {}
+
     QPointF getPos()
     {
         std::lock_guard<std::mutex> guard(m);

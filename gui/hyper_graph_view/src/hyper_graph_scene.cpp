@@ -1,6 +1,7 @@
 #include "hyper_graph_view/include/hyper_graph_scene.h"
 #include "items/include/edge_item.h"
 #include "layout_algorithms/include/edge_attraction.h"
+#include "layout_algorithms/include/node_repulsion_edge_attraction.h"
 
 #include <QMap>
 #include <thread>
@@ -47,7 +48,7 @@ HyperGraphScene::HyperGraphScene(core::HyperGraph& graph) : QGraphicsScene() {
                               auto foundPN = entityToProcNode[n->getUuid()];
                               joinNode->addParent(node);
                               foundPN->addParent(node);
-                              mEdges.emplace_back(new ProceduralEdge{foundPN, joinNode, 1});
+                              mEdges.emplace_back(new ProceduralEdge(foundPN, joinNode, 1));
                           });
         } else {
             auto n1 = hyperEdge->getContents()[0];
@@ -69,7 +70,7 @@ HyperGraphScene::HyperGraphScene(core::HyperGraph& graph) : QGraphicsScene() {
 
             auto nodeKey = keyGen(pn1, pn2);
             if (procNodesToEdge.find(nodeKey) == procNodesToEdge.end()) {
-                auto edge = new ProceduralEdge{pn1, pn2};
+                auto edge = new ProceduralEdge(pn1, pn2);
                 mEdges.emplace_back(edge);
                 procNodesToEdge[nodeKey] = edge;
             }
@@ -88,7 +89,7 @@ HyperGraphScene::HyperGraphScene(core::HyperGraph& graph) : QGraphicsScene() {
             for (auto iterJ = std::next(iterI, 1); iterJ != n->parents.end(); iterJ++) {
                 auto nodeKey = keyGen(*iterI, *iterJ);
                 if (procNodesToEdge.find(nodeKey) == procNodesToEdge.end()) {
-                    auto edge = new ProceduralEdge{*iterI, *iterJ};
+                    auto edge = new ProceduralEdge(*iterI, *iterJ);
                     mEdges.emplace_back(edge);
                     procNodesToEdge[nodeKey] = edge;
                 }
@@ -110,7 +111,8 @@ HyperGraphScene::HyperGraphScene(core::HyperGraph& graph) : QGraphicsScene() {
 
 void HyperGraphScene::layoutThreadWorker(std::vector<ProceduralNode*> nodes, std::vector<ProceduralEdge*> edges, std::atomic<bool>& isActive)
 {
-    auto layoutAlgorithm = EdgeAttraction(nodes, edges);
+    //auto layoutAlgorithm = EdgeAttraction(nodes, edges);
+    auto layoutAlgorithm = NodeRepulsionEdgeAttraction(nodes, edges);
     while (true) {
         std::this_thread::sleep_for(std::chrono::milliseconds (50));
         if (isActive) {
