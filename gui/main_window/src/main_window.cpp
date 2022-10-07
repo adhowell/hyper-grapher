@@ -8,11 +8,8 @@ namespace gui
 {
 MainWindow::MainWindow(QWidget* parent)
 {
-    core::HyperGraph graph;
+    auto graph = core::HyperGraph::createRandomGraph();
 
-    for (uint32_t i = 0; i < 10000; i++) {
-        graph.createHyperEdge({graph.createNode(i), graph.createNode(i+1), graph.createNode(i+2)});
-    }
     mScene = new HyperGraphScene(graph);
     connect(mScene, &HyperGraphScene::updateNumSelected, this, &MainWindow::handleUpdateNumSelected);
 

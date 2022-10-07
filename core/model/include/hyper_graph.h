@@ -21,6 +21,8 @@ public:
 
     HyperEdge* getHyperEdge(uint32_t uuid);
 
+    static HyperGraph createRandomGraph();
+
 private:
     uint32_t mUuid = 0;
     std::unordered_map<int, Node*> mLabelToNode; // Placeholder
