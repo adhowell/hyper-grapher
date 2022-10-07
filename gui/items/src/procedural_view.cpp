@@ -31,8 +31,9 @@ void ProceduralView::slowUpdate()
     mIt = std::partition(mNodes.begin(), mNodes.end(),
                          [this](auto n)
                          {
+                             auto pos = n->getPos();
                              return n->visible
-                             && mX2 > n->x && n->x > mX1 && mY2 > n->y && n->y > mY1;
+                             && mX2 > pos.x() && pos.x() > mX1 && mY2 > pos.y() && pos.y() > mY1;
                          });
     update();
 }
@@ -49,15 +50,16 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
         std::for_each(mNodes.begin(), mIt,
                       [painter, wF, hF, focusPen, defaultPen, this](auto n) {
                           painter->setPen(n->focus ? focusPen : defaultPen);
+                          auto pos = n->getPos();
                           switch (n->type) {
                               case PNT::Edge:
-                                  painter->drawRect(wF*(n->x-mX1)-5, hF*(n->y-mY1)-5, 10, 10);
+                                  painter->drawRect(wF*(pos.x()-mX1)-5, hF*(pos.y()-mY1)-5, 10, 10);
                                   break;
                               case PNT::Node:
-                                  painter->drawRect(wF*(n->x-mX1)-3, hF*(n->y-mY1)-3, 6, 6);
+                                  painter->drawRect(wF*(pos.x()-mX1)-3, hF*(pos.y()-mY1)-3, 6, 6);
                                   break;
                               case PNT::Join:
-                                  painter->drawRect(wF*(n->x-mX1)-2, hF*(n->y-mY1)-2, 4, 4);
+                                  painter->drawRect(wF*(pos.x()-mX1)-2, hF*(pos.y()-mY1)-2, 4, 4);
                                   break;
                           }
                       });
@@ -65,10 +67,11 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
         std::for_each(mNodes.begin(), mIt,
                       [painter, wF, hF, focusPen, defaultPen, this](auto n) {
                           painter->setPen(n->focus ? focusPen : defaultPen);
+                          auto pos = n->getPos();
                           switch (n->type) {
                               case PNT::Edge:
                               case PNT::Node:
-                                  painter->drawLine(wF*(n->x-mX1), hF*(n->y-mY1), wF*(n->x-mX1), hF*(n->y-mY1));
+                                  painter->drawLine(wF*(pos.x()-mX1), hF*(pos.y()-mY1), wF*(pos.x()-mX1), hF*(pos.y()-mY1));
                                   break;
                               case PNT::Join:;
                           }
@@ -88,30 +91,36 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
             edgeIter = std::partition(mEdges.begin(), nonVisibleIter,
                                       [this](auto e)
                                       {
-                                          return !((e->src->x > mX2 && e->dst->x > mX2)
-                                                   || (mX1 > e->src->x && mX1 > e->dst->x)
-                                                   || (e->src->y > mY2 && e->dst->y > mY2)
-                                                   || (mY1 > e->src->y && mY1 > e->dst->y));
+                                          auto p1 = e->src->getPos();
+                                          auto p2 = e->dst->getPos();
+                                          return !((p1.x() > mX2 && p2.x() > mX2)
+                                                   || (mX1 > p1.x() && mX1 > p2.x())
+                                                   || (p1.y() > mY2 && p2.y() > mY2)
+                                                   || (mY1 > p1.y() && mY1 > p2.y()));
                                       });
             break;
         case EdgeDrawMode::One:
             edgeIter = std::partition(mEdges.begin(), nonVisibleIter,
                                       [this](auto e)
                                       {
-                                          return ((mX2 > e->src->x && e->src->x > mX1)
-                                                  && (mY2 > e->src->y && e->src->y > mY1))
-                                                  || ((mX2 > e->dst->x && e->dst->x > mX1)
-                                                  && (mY2 > e->dst->y && e->dst->y > mY1));
+                                          auto p1 = e->src->getPos();
+                                          auto p2 = e->dst->getPos();
+                                          return ((mX2 > p1.x() && p1.x() > mX1)
+                                                  && (mY2 > p1.y() && p1.y() > mY1))
+                                                  || ((mX2 > p2.x() && p2.x() > mX1)
+                                                  && (mY2 > p2.y() && p2.y() > mY1));
                                       });
             break;
         case EdgeDrawMode::Both:
             edgeIter = std::partition(mEdges.begin(), nonVisibleIter,
                                       [this](auto e)
                                       {
-                                          return (mX2 > e->src->x && e->src->x > mX1)
-                                                 && (mY2 > e->src->y && e->src->y > mY1)
-                                                 && (mX2 > e->dst->x && e->dst->x > mX1)
-                                                 && (mY2 > e->dst->y && e->dst->y > mY1);
+                                          auto p1 = e->src->getPos();
+                                          auto p2 = e->dst->getPos();
+                                          return (mX2 > p1.x() && p1.x() > mX1)
+                                                 && (mY2 > p1.y() && p1.y() > mY1)
+                                                 && (mX2 > p2.x() && p2.x() > mX1)
+                                                 && (mY2 > p2.y() && p2.y() > mY1);
                                       });
             break;
         default: break;
@@ -124,10 +133,12 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
                           edgePen.setWidthF(e->weight);
                           painter->setPen(edgePen);
                       }
-                      painter->drawLine(wF * (e->src->x - mX1),
-                                        hF * (e->src->y - mY1),
-                                        wF * (e->dst->x - mX1),
-                                        hF * (e->dst->y - mY1));
+                      auto p1 = e->src->getPos();
+                      auto p2 = e->dst->getPos();
+                      painter->drawLine(wF * (p1.x() - mX1),
+                                        hF * (p1.y() - mY1),
+                                        wF * (p2.x() - mX1),
+                                        hF * (p2.y() - mY1));
                   });
 
     painter->setPen(QColor(0, 0, 0));
@@ -213,7 +224,8 @@ void ProceduralView::updateSelectionBoxEnd(QPointF endPoint)
     auto it = std::partition(mNodes.begin(), mIt,
                              [x1, x2, y1, y2](auto n)
                              {
-                                 return n->visible && x2 > n->x && n->x > x1 && y2 > n->y && n->y > y1;
+                                 auto pos = n->getPos();
+                                 return n->visible && x2 > pos.x() && pos.x() > x1 && y2 > pos.y() && pos.y() > y1;
                              });
     mNumSelected = it - mNodes.begin();
     std::for_each(mNodes.begin(), it, [](auto n){ n->setFocus(true); });
@@ -226,7 +238,8 @@ void ProceduralView::selectAllVisible()
     auto it = std::partition(mNodes.begin(), mNodes.end(),
                              [this](auto n)
                              {
-                                 return n->visible && mX2 > n->x && n->x > mX1 && mY2 > n->y && n->y > mY1;
+                                 auto pos = n->getPos();
+                                 return n->visible && mX2 > pos.x() && pos.x() > mX1 && mY2 > pos.y() && pos.y() > mY1;
                              });
     mNumSelected = it - mNodes.begin();
     std::for_each(mNodes.begin(), it, [](auto n){ n->setFocus(true); });
