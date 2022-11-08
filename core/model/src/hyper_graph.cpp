@@ -37,7 +37,7 @@ core::HyperGraph HyperGraph::createRandomGraph()
 {
     std::random_device rd;
     std::mt19937 mt(rd());
-    std::uniform_real_distribution<double> numNodesDist(1.0, 100.0);
+    std::uniform_real_distribution<double> numNodesDist(1.0, 250.0);
     std::uniform_real_distribution<double> edgeSizeDist(1.0, 5.0);
 
     core::HyperGraph graph;

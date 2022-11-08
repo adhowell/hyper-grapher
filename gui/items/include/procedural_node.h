@@ -18,12 +18,13 @@ struct ProceduralNode {
     const uint32_t uuid;
     double x;
     double y;
-    bool visible = false;
-    Type type = Type::Node;
+    bool visible {false};
+    Type type {Type::Node};
     std::set<ProceduralNode*> parents{};
-    bool focus = false;
-    double _scheduledDeltaX = 0;
-    double _scheduledDeltaY = 0;
+    bool focus {false};
+    int size {0};
+    double _scheduledDeltaX {0};
+    double _scheduledDeltaY {0};
 
     std::mutex m;
 

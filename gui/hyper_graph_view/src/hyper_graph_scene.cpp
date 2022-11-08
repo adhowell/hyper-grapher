@@ -111,8 +111,8 @@ HyperGraphScene::HyperGraphScene(core::HyperGraph& graph) : QGraphicsScene() {
 
 void HyperGraphScene::layoutThreadWorker(std::vector<ProceduralNode*> nodes, std::vector<ProceduralEdge*> edges, std::atomic<bool>& isActive)
 {
-    //auto layoutAlgorithm = EdgeAttraction(nodes, edges);
-    auto layoutAlgorithm = NodeRepulsionEdgeAttraction(nodes, edges);
+    auto layoutAlgorithm = EdgeAttraction(nodes, edges);
+    //auto layoutAlgorithm = NodeRepulsionEdgeAttraction(nodes, edges);
     while (true) {
         std::this_thread::sleep_for(std::chrono::milliseconds (50));
         if (isActive) {

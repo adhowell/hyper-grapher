@@ -46,37 +46,6 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
     auto defaultPen = QPen();
     auto focusPen = QPen();
     focusPen.setWidthF(3);
-    if (mDrawDetails) {
-        std::for_each(mNodes.begin(), mIt,
-                      [painter, wF, hF, focusPen, defaultPen, this](auto n) {
-                          painter->setPen(n->focus ? focusPen : defaultPen);
-                          auto pos = n->getPos();
-                          switch (n->type) {
-                              case PNT::Edge:
-                                  painter->drawRect(wF*(pos.x()-mX1)-5, hF*(pos.y()-mY1)-5, 10, 10);
-                                  break;
-                              case PNT::Node:
-                                  painter->drawRect(wF*(pos.x()-mX1)-3, hF*(pos.y()-mY1)-3, 6, 6);
-                                  break;
-                              case PNT::Join:
-                                  painter->drawRect(wF*(pos.x()-mX1)-2, hF*(pos.y()-mY1)-2, 4, 4);
-                                  break;
-                          }
-                      });
-    } else {
-        std::for_each(mNodes.begin(), mIt,
-                      [painter, wF, hF, focusPen, defaultPen, this](auto n) {
-                          painter->setPen(n->focus ? focusPen : defaultPen);
-                          auto pos = n->getPos();
-                          switch (n->type) {
-                              case PNT::Edge:
-                              case PNT::Node:
-                                  painter->drawLine(wF*(pos.x()-mX1), hF*(pos.y()-mY1), wF*(pos.x()-mX1), hF*(pos.y()-mY1));
-                                  break;
-                              case PNT::Join:;
-                          }
-                      });
-    }
 
     // Ignore hidden edges
     auto nonVisibleIter = std::partition(mEdges.begin(), mEdges.end(),
@@ -141,6 +110,49 @@ void ProceduralView::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
                                         hF * (p2.y() - mY1));
                   });
 
+    // Draw nodes
+    if (mDrawDetails) {
+        std::for_each(mNodes.begin(), mIt,
+                      [painter, wF, hF, focusPen, defaultPen, this](auto n) {
+                          QPen pen = n->focus ? focusPen : defaultPen;
+                          auto pos = n->getPos();
+                          int size = orderOfMagnitude(n->size)*6;
+                          switch (n->type) {
+                              case PNT::Edge:
+                                  //painter->drawRect(wF*(pos.x()-mX1)-5, hF*(pos.y()-mY1)-5, 10, 10);
+                                  pen.setStyle(Qt::PenStyle::DashLine);
+                                  break;
+                              case PNT::Node:
+                                  //painter->drawRect(wF*(pos.x()-mX1)-3, hF*(pos.y()-mY1)-3, 6, 6);
+                                  pen.setStyle(Qt::PenStyle::SolidLine);
+                                  break;
+                              case PNT::Join:
+                                  //painter->drawRect(wF*(pos.x()-mX1)-2, hF*(pos.y()-mY1)-2, 4, 4);
+                                  pen.setStyle(Qt::PenStyle::DotLine);
+                                  break;
+                          }
+                          painter->setPen(pen);
+                          painter->setBrush(QBrush(QColor(255, 255, 255)));
+                          painter->drawEllipse(wF*(pos.x()-mX1)-size, hF*(pos.y()-mY1)-size, size*2, size*2);
+                          painter->drawText(wF*(pos.x()-mX1)-(size/2), hF*(pos.y()-mY1)+4, QString::number(n->size));
+                          painter->setBrush(QBrush());
+                      });
+    } else {
+        std::for_each(mNodes.begin(), mIt,
+                      [painter, wF, hF, focusPen, defaultPen, this](auto n) {
+                          painter->setPen(n->focus ? focusPen : defaultPen);
+                          auto pos = n->getPos();
+                          switch (n->type) {
+                              case PNT::Edge:
+                              case PNT::Node:
+                                  painter->drawLine(wF*(pos.x()-mX1), hF*(pos.y()-mY1), wF*(pos.x()-mX1), hF*(pos.y()-mY1));
+                                  break;
+                              case PNT::Join:;
+                          }
+                      });
+    }
+
+    painter->setPen(Qt::PenStyle::SolidLine);
     painter->setPen(QColor(0, 0, 0));
     if (mDrawBox) {
         painter->drawLine(QLineF(wF*(mBoxStartPoint.x()-mX1), hF*(mBoxStartPoint.y()-mY1), wF*(mBoxEndPoint.x()-mX1), hF*(mBoxStartPoint.y()-mY1)));
@@ -339,5 +351,14 @@ void ProceduralView::changeHierarchy(bool ascend)
                       });
     }
     slowUpdate();
+}
+
+int ProceduralView::orderOfMagnitude(int v)
+{
+    int m = 1;
+    while ((v /= 10) != 0) {
+        m++;
+    }
+    return m;
 }
 }

@@ -97,6 +97,8 @@ public:
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
 private:
+    static int orderOfMagnitude(int v);
+
     bool mDrawDetails = true;
     bool mDrawWeights = true;
     EdgeDrawMode mEdgeDrawMode = EdgeDrawMode::All;
